@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from flask import Flask, render_template, request, redirect, flash, url_for, g
-from forms import ContactForm, AddForm
+from forms import AddForm
 import sqlite3
 
 VERSION = "0.0.1"

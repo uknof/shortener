@@ -1,15 +1,10 @@
 from flask.ext.wtf import Form
 from wtforms import TextField, TextAreaField, BooleanField, SubmitField, validators
- 
-class ContactForm(Form):
-  name = TextField("Name")
-  email = TextField("Email")
-  subject = TextField("Subject")
-  message = TextAreaField("Message")
-  submit = SubmitField("Send")
 
 class AddForm(Form):
-  specific = BooleanField("specific")
-  number = TextField("number")
-  dest = TextField("dest", [validators.Required("Destination URL required")])
+  specific = BooleanField("Meeting specific")
+  number = TextField("Meeting number")
+  custom = TextField("Custom")
+  notes = TextField("Notes")
+  dest = TextField("Destination URL", [validators.Required("Destination URL required")])
   submit = SubmitField("Add")
