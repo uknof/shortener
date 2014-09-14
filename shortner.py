@@ -48,10 +48,19 @@ def admin_urls_add():
     return render_template('admin_urls_add.html', form=form)
 
 
-@app.route("/admin/urls/list")
+@app.route("/admin/urls")
 def admin_urls_list():
     urls = query_db('select *,(select sum(hits4) from hits where hits.short=urls.short) as hits4,(select sum(hits6) from hits where hits.short=urls.short) as hits6 from urls')
     return render_template('admin_urls_list.html', urls=urls)
+
+
+@app.route("/admin/urls/<short>")
+def admin_urls_detail(short):
+    match = query_db("select dest from urls where short=?", [short])
+    if len(match) == 0:
+        return redirect(url_for('admin_urls_list'))
+    hits = query_db("select * from hits where short=? order by hitdate desc", [short])
+    return render_template('admin_urls_detail.html', url=match, hits=hits)
 
 
 def urlmatch(url):
@@ -70,7 +79,7 @@ def urlmatch(url):
     if len(hittoday) == 0:
         get_db().execute("insert into hits (short,hitdate,%s) values (?,date('now'),1)" % (hitfield) ,[short])
     else:
-        get_db().execute("update hits set %s=%s+1 where short=?" % (hitfield,hitfield) ,[short])
+        get_db().execute("update hits set %s=%s+1 where short=? and hitdate=date('now')" % (hitfield,hitfield) ,[short])
     get_db().commit()
     # finally redirect
     return redirect(destination,code=302)

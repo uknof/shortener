@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<p>detail</p>
+
+<p>{{ url }}</p>
+
+
+<table border=1>
+{% for hit in hits %}
+<tr>
+    <td>{{ hit.hitdate }}</td>
+    <td>{{ hit.hits4 }}</td>
+    <td>{{ hit.hits6 }}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

@@ -12,7 +12,7 @@
 </tr>
 {% for url in urls %}
 <tr>
-    <td>{{ url.short }}</td>
+    <td><a href="{{ url_for('admin_urls_list') }}/{{ url.short }}">{{ url.short }}</a></td>
     <td>{{ url.dest }}</td>
     <td>{{ url.hits4 }}</td>
     <td>{{ url.hits6 }}</td>
