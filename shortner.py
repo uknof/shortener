@@ -18,8 +18,10 @@ DATABASE = "urls.db"
 #@app.before_request
 #def before_request():
 
+
 def generate_short():
     return ''.join(random.choice(string.ascii_lowercase) for i in range(5))
+
 
 def unique_short():
     matches = 1
@@ -34,7 +36,7 @@ def add():
     form = AddForm(request.form)
     if request.method == 'POST' and form.validate():
         short = unique_short()
-        get_db().execute('insert into urls (short,dest) values (?,?)', [short,form.dest.data])
+        get_db().execute('insert into urls (short,dest) values (?,?)', [short, form.dest.data])
 	get_db().commit()
         flash("URL %s generated" % (short))
         return redirect(url_for('list_urls'))
@@ -44,7 +46,8 @@ def add():
 @app.route("/list")
 def list_urls():
     urls = query_db('select *,(select sum(hits4) from hits where hits.short=urls.short) as hits4,(select sum(hits6) from hits where hits.short=urls.short) as hits6 from urls')
-    return render_template('list.html',urls=urls)
+    return render_template('list.html', urls=urls)
+
 
 def urlmatch(url):
     short = url.lower()
@@ -57,7 +60,7 @@ def urlmatch(url):
     srcip = request.remote_addr
     ip = ipaddr.IPAddress(srcip)
     hittoday = query_db("select * from hits where short='%s' and hitdate=date('now')" % (short))
-    hitfield = "hits4"
+    hitfield = "hits%s" % (ip.version)
     # update hit counters
     if len(hittoday) == 0:
         get_db().execute("insert into hits (short,hitdate,%s) values (?,date('now'),1)" % (hitfield), [short])
@@ -67,14 +70,17 @@ def urlmatch(url):
     # finally redirect
     return redirect(destination,code=302)
 
+
 @app.route("/<url>")
 def urlcheck(url):
     return urlmatch(url)
 
+
 @app.route("/<url>/")
 def urlchecktrailing(url):
     return urlmatch(url)
- 
+
+
 @app.route("/")
 def index():
     return "wah"
@@ -103,8 +109,6 @@ def query_db(query, args=(), one=False):
     return (rv[0] if rv else None) if one else rv
 
 
-
-
 def init_db():
     with app.app_context():
         db = get_db()
@@ -120,4 +124,3 @@ def init_db():
 if __name__ == '__main__':
     app.debug = True
     app.run()
-

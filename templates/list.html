@@ -3,9 +3,22 @@
 {% block content %}
 <p>list</p>
 
+<table>
+<tr>
+    <th>Short</th>
+    <th>Destination</th>
+    <th>Hits v4</th>
+    <th>Hits v6</th>
+</tr>
 {% for url in urls %}
-<li>{{ url }}</li>
+<tr>
+    <td>{{ url.short }}</td>
+    <td>{{ url.dest }}</td>
+    <td>{{ url.hits4 }}</td>
+    <td>{{ url.hits6 }}</td>
+</tr>
 {% endfor %}
+</table>
 
 <p><a href="{{ url_for('add') }}">Add</a></p>
 {% endblock %}
