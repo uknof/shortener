@@ -31,22 +31,27 @@ def unique_short():
     return short
 
 
-@app.route('/add', methods=['GET', 'POST'])
-def add():
+@app.route('/admin')
+def admin_index():
+    return render_template('admin_index.html')
+
+
+@app.route('/admin/urls/add', methods=['GET', 'POST'])
+def admin_urls_add():
     form = AddForm(request.form)
     if request.method == 'POST' and form.validate():
         short = unique_short()
         get_db().execute('insert into urls (short,dest) values (?,?)', [short, form.dest.data])
 	get_db().commit()
         flash("URL %s generated" % (short))
-        return redirect(url_for('list_urls'))
-    return render_template('add.html', form=form)
+        return redirect(url_for('admin_urls_list'))
+    return render_template('admin_urls_add.html', form=form)
 
 
-@app.route("/list")
-def list_urls():
+@app.route("/admin/urls/list")
+def admin_urls_list():
     urls = query_db('select *,(select sum(hits4) from hits where hits.short=urls.short) as hits4,(select sum(hits6) from hits where hits.short=urls.short) as hits6 from urls')
-    return render_template('list.html', urls=urls)
+    return render_template('admin_urls_list.html', urls=urls)
 
 
 def urlmatch(url):
