@@ -6,6 +6,7 @@ create table urls (
 drop table if exists hits;
 create table hits (
   short string,
+  hitdate string,
   hits4 integer default 0,
   hits6 integer default 0
 );

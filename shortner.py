@@ -5,6 +5,7 @@ from forms import AddForm
 import sqlite3
 import random
 import string
+import ipaddr
 
 VERSION = "0.0.1"
 
@@ -27,6 +28,7 @@ def unique_short():
     	matches = query_db("select * from urls where short='%s'" % (short))
     return short
 
+
 @app.route('/add', methods=['GET', 'POST'])
 def add():
     form = AddForm(request.form)
@@ -34,27 +36,44 @@ def add():
         short = unique_short()
         get_db().execute('insert into urls (short,dest) values (?,?)', [short,form.dest.data])
 	get_db().commit()
-        flash('URL added')
+        flash("URL %s generated" % (short))
         return redirect(url_for('list_urls'))
     return render_template('add.html', form=form)
-#  if request.method == 'POST':
-#    if form.validate() == False:
-#      flash('Required field missing')
-#      return render_template('add.html', form=form)
-#    else:
-#      return 'Form posted.' 
-#  elif request.method == 'GET':
-#    return render_template('add.html', form=form)
+
 
 @app.route("/list")
 def list_urls():
-    urls = query_db('select * from urls')
+    urls = query_db('select *,(select sum(hits4) from hits where hits.short=urls.short) as hits4,(select sum(hits6) from hits where hits.short=urls.short) as hits6 from urls')
     return render_template('list.html',urls=urls)
 
+def urlmatch(url):
+    short = url.lower()
+    match = query_db("select dest from urls where short='%s'" % (short))
+    if len(match) == 0:
+        # no match found
+        return "No match found"
+    destination = match[0]['dest']
+    # work out src ip version
+    srcip = request.remote_addr
+    ip = ipaddr.IPAddress(srcip)
+    hittoday = query_db("select * from hits where short='%s' and hitdate=date('now')" % (short))
+    hitfield = "hits4"
+    # update hit counters
+    if len(hittoday) == 0:
+        get_db().execute("insert into hits (short,hitdate,%s) values (?,date('now'),1)" % (hitfield), [short])
+    else:
+        get_db().execute("update hits set %s=%s+1 where short=?" % (hitfield,hitfield), [short])
+    get_db().commit()
+    # finally redirect
+    return redirect(destination,code=302)
 
 @app.route("/<url>")
 def urlcheck(url):
-    return "test %s" % (url)
+    return urlmatch(url)
+
+@app.route("/<url>/")
+def urlchecktrailing(url):
+    return urlmatch(url)
  
 @app.route("/")
 def index():
@@ -65,6 +84,9 @@ def get_db():
     db = getattr(g, '_database', None)
     if db is None:
         db = g._database = sqlite3.connect(DATABASE)
+    def make_dicts(cursor, row):
+        return dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
+    db.row_factory = make_dicts
     return db
 
 @app.teardown_appcontext
@@ -79,6 +101,8 @@ def query_db(query, args=(), one=False):
     rv = cur.fetchall()
     cur.close()
     return (rv[0] if rv else None) if one else rv
+
+
 
 
 def init_db():
