@@ -3,6 +3,8 @@
 from flask import Flask, render_template, request, redirect, flash, url_for, g
 from forms import AddForm
 import sqlite3
+import random
+import string
 
 VERSION = "0.0.1"
 
@@ -15,11 +17,22 @@ DATABASE = "urls.db"
 #@app.before_request
 #def before_request():
 
+def generate_short():
+    return ''.join(random.choice(string.ascii_lowercase) for i in range(5))
+
+def unique_short():
+    matches = 1
+    while matches == 1:
+        short = generate_short()
+    	matches = query_db("select * from urls where short='%s'" % (short))
+    return short
+
 @app.route('/add', methods=['GET', 'POST'])
 def add():
     form = AddForm(request.form)
     if request.method == 'POST' and form.validate():
-        get_db().execute('insert into urls (dest) values (?)', [form.dest.data])
+        short = unique_short()
+        get_db().execute('insert into urls (short,dest) values (?,?)', [short,form.dest.data])
 	get_db().commit()
         flash('URL added')
         return redirect(url_for('list_urls'))
