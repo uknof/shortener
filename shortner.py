@@ -19,14 +19,10 @@ DATABASE = "urls.db"
 #def before_request():
 
 
-def generate_short():
-    return ''.join(random.choice(string.ascii_lowercase) for i in range(5))
-
-
 def unique_short():
     matches = 1
     while matches == 1:
-        short = generate_short()
+        short = ''.join(random.choice(string.ascii_lowercase) for i in range(5))
     	matches = query_db("select * from urls where short=?", [short])
     return short
 
@@ -85,14 +81,10 @@ def urlmatch(url):
     return redirect(destination,code=302)
 
 
-@app.route("/<url>")
-def urlcheck(url):
-    return urlmatch(url)
-
-
-@app.route("/<url>/")
-def urlchecktrailing(url):
-    return urlmatch(url)
+@app.route("/<short>/")
+@app.route("/<short>")
+def urlcheck(short):
+    return urlmatch(short)
 
 
 @app.route("/")
