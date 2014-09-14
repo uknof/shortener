@@ -27,7 +27,7 @@ def unique_short():
     matches = 1
     while matches == 1:
         short = generate_short()
-    	matches = query_db("select * from urls where short='%s'" % (short))
+    	matches = query_db("select * from urls where short=?", [short])
     return short
 
 
@@ -51,7 +51,7 @@ def list_urls():
 
 def urlmatch(url):
     short = url.lower()
-    match = query_db("select dest from urls where short='%s'" % (short))
+    match = query_db("select dest from urls where short=?", [short])
     if len(match) == 0:
         # no match found
         return "No match found"
@@ -59,13 +59,13 @@ def urlmatch(url):
     # work out src ip version
     srcip = request.remote_addr
     ip = ipaddr.IPAddress(srcip)
-    hittoday = query_db("select * from hits where short='%s' and hitdate=date('now')" % (short))
+    hittoday = query_db("select * from hits where short=? and hitdate=date('now')", [short])
     hitfield = "hits%s" % (ip.version)
     # update hit counters
     if len(hittoday) == 0:
-        get_db().execute("insert into hits (short,hitdate,%s) values (?,date('now'),1)" % (hitfield), [short])
+        get_db().execute("insert into hits (short,hitdate,%s) values (?,date('now'),1)" % (hitfield) ,[short])
     else:
-        get_db().execute("update hits set %s=%s+1 where short=?" % (hitfield,hitfield), [short])
+        get_db().execute("update hits set %s=%s+1 where short=?" % (hitfield,hitfield) ,[short])
     get_db().commit()
     # finally redirect
     return redirect(destination,code=302)
