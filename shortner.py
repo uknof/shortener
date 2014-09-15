@@ -23,7 +23,7 @@ DATABASE = "urls.db"
 def unique_short():
     matches = 1
     while matches == 1:
-        short = ''.join(random.choice(string.ascii_lowercase) for i in range(5))
+        short = ''.join(random.choice(['b','c','d','f','g','h','j','k','m','n','p','q','r','s','t','v','w','x','y','z']) for i in range(5))
     	matches = query_db("select * from urls where short=?", [short])
     return short
 
