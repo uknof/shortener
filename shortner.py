@@ -27,10 +27,7 @@ def unique_short():
     	matches = query_db("select * from urls where short=?", [short])
     return short
 
-
-@app.route('/admin/')
-@app.route('/admin')
-def admin_index():
+def db_totals():
     total4 = 0
     total6 = 0
     totalhits = query_db('select sum(hits4) as total4, sum(hits6) as total6 from hits')
@@ -38,15 +35,21 @@ def admin_index():
         total4 = totalhits[0]["total4"]
         total6 = totalhits[0]["total6"]
 
-    items = []
-    items.append({"Hits": total4 + total6 })
-    items.append({"Hit IPv4": total4 })
-    items.append({"Hit IPv6": total6 })
+    items = {}
+    items["Hits"] = total4 + total6
+    items["Hit IPv4"] = total4
+    items["Hit IPv6"] = total6
 
     urlcount = query_db('select count(*) as urls from urls')[0]["urls"]
-    items.append({"URLs": urlcount })
+    items["URLs"] = urlcount
+    return items
 
-    return render_template('admin_index.html', totals=items)
+
+@app.route('/admin/')
+@app.route('/admin')
+def admin_index():
+    totals = db_totals()
+    return render_template('admin_index.html', totals=totals)
 
 
 @app.route('/admin/urls/add', methods=['GET', 'POST'])

@@ -4,7 +4,7 @@
 <p>admin site</p>
 
 <table>
-{% for key in totals.iteritems() %}
+{% for key,value in totals.iteritems() | sort %}
 <tr>
 	<td>{{ key }}</td>
 	<td>{{ value }}</td>
