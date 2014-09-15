@@ -6,6 +6,7 @@ import sqlite3
 import random
 import string
 import ipaddr
+import os
 
 VERSION = "0.0.1"
 
@@ -144,5 +145,12 @@ def init_db():
 
 
 if __name__ == '__main__':
+
+    if os.path.isfile(DATABASE) is False:
+        print ""
+        print "ERROR: sqlite db does not exist: %s" % (DATABASE)
+        print ""
+        exit(1)
+
     app.debug = True
     app.run()
