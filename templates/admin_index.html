@@ -3,5 +3,13 @@
 {% block content %}
 <p>admin site</p>
 
+<table>
+{% for key in totals.iteritems() %}
+<tr>
+	<td>{{ key }}</td>
+	<td>{{ value }}</td>
+</tr>
+{% endfor %}
+</table>
 <p><a href="{{ url_for('admin_urls_list') }}">URL list</a></p>
 {% endblock %}
