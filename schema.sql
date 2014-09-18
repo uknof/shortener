@@ -10,3 +10,12 @@ create table hits (
   hits4 integer default 0,
   hits6 integer default 0
 );
+drop table if exists users;
+create table users (
+  username string,
+  password string,
+  registered_on string,
+  last_login string,
+  logins integer default 0
+);
+insert into users (username, password) values ('admin', 'admin');
