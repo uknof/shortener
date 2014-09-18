@@ -8,7 +8,7 @@ import random
 import string
 import ipaddr
 import os
-from user import User
+#from user import User
 
 VERSION = "0.0.1"
 
@@ -17,10 +17,49 @@ app.config.from_object(__name__)
 app.secret_key = 'development key'
 
 DATABASE = "urls.db"
+DATABASEREQ = 0.1
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+
+class User():
+
+    # def __init__(self , username ,password , email):
+    #    self.username = username
+    #    self.password = password
+    #    self.email = email
+    #    self.registered_on = datetime.utcnow()
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return unicode(self.username)
+
+    def __repr__(self):
+        return '<User %r>' % (self.username)
+
+    @staticmethod
+    def processlogin(g, username, password):
+        userdb = query_db("select * from users where username = ? and password = ?", [username, password])
+        if len(userdb) == 1:       
+            return User.get(username)
+        return None
+
+    @staticmethod
+    def get(username):
+        u = User()
+        u.username = "nat"
+        return u
+
 
 
 @login_manager.user_loader
@@ -65,7 +104,7 @@ def login():
     form = LoginForm(request.form)
     if request.method == 'GET':
         return render_template('login.html', form=form)
-    registered_user = User.processlogin(username=form.username.data, password=form.password.data)
+    registered_user = User.processlogin(g,form.username.data, form.password.data)
     if registered_user is None:
         flash('Username or Password is invalid', 'error')
         return redirect(url_for('login'))
@@ -147,7 +186,7 @@ def urlcheck(short):
 
 @app.route("/")
 def index():
-    return "URL Shortner"
+    return "URL Shortner v%s" % (VERSION)
 
 
 def get_db():
@@ -193,3 +232,4 @@ if __name__ == '__main__':
 
     app.debug = True
     app.run()
+
