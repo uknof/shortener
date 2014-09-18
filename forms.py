@@ -8,3 +8,9 @@ class AddForm(Form):
   notes = TextField("Notes")
   dest = TextField("Destination URL", [validators.Required("Destination URL required")])
   submit = SubmitField("Add")
+
+class LoginForm(Form):
+  username = TextField("Username")
+  password = TextField("Password")
+  submit = SubmitField("Login")
+  

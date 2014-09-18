@@ -1,3 +1,8 @@
+<html>
+	<head>
+		<title>Shortner</title>
+	</head>
+<body>
 {% from "_formhelpers.html" import render_field %}
 {% for message in get_flashed_messages() %}
   <div class="flash">{{ message }}</div>
@@ -5,3 +10,5 @@
 
 {% block content %}
 {% endblock %}
+</body>
+</html>
