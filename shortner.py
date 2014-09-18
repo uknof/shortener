@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from flask import Flask, render_template, request, redirect, flash, url_for, g, session
-from flask.ext.login import LoginManager, login_required,  login_user , logout_user , current_user
+from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
 from forms import AddForm, LoginForm
 import sqlite3
 import random
@@ -18,10 +18,10 @@ app.secret_key = 'development key'
 
 DATABASE = "urls.db"
 
-
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
 
 @login_manager.user_loader
 def load_user(username):
@@ -33,11 +33,12 @@ def before_request():
     g.user = current_user
     print g.user
 
+
 def unique_short():
     matches = 1
     while matches == 1:
-        short = ''.join(random.choice(['b','c','d','f','g','h','j','k','m','n','p','q','r','s','t','v','w','x','y','z']) for i in range(5))
-    	matches = query_db("select * from urls where short=?", [short])
+        short = ''.join(random.choice(['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z']) for i in range(5))
+        matches = query_db("select * from urls where short=?", [short])
     return short
 
 
@@ -50,33 +51,32 @@ def db_totals():
         total6 = totalhits[0]["total6"]
 
     items = {}
-    #items["Hits"] = total4 + total6
-    #items["Hit IPv4"] = total4
-    #items["Hit IPv6"] = total6
+    # items["Hits"] = total4 + total6
+    # items["Hit IPv4"] = total4
+    # items["Hit IPv6"] = total6
 
     urlcount = query_db('select count(*) as urls from urls')[0]["urls"]
     items["URLs"] = urlcount
     return items
 
 
-@app.route('/login', methods=['GET','POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
     if request.method == 'GET':
         return render_template('login.html', form=form)
     registered_user = User.processlogin(username=form.username.data, password=form.password.data)
     if registered_user is None:
-        flash('Username or Password is invalid' , 'error')
+        flash('Username or Password is invalid', 'error')
         return redirect(url_for('login'))
-    #print registered_user
     login_user(registered_user)
     return redirect(request.args.get('next') or url_for('admin_index'))
 
 
-@app.route('/logout', methods=['GET','POST'])
+@app.route('/logout', methods=['GET', 'POST'])
 def logout():
     logout_user()
-    return redirect(url_for('index')) 
+    return redirect(url_for('index'))
 
 
 @app.route('/admin/')
@@ -94,7 +94,7 @@ def admin_urls_add():
     if request.method == 'POST' and form.validate():
         short = unique_short()
         get_db().execute('insert into urls (short,dest) values (?,?)', [short, form.dest.data])
-	get_db().commit()
+        get_db().commit()
         flash("URL %s generated" % (short))
         return redirect(url_for('admin_urls_list'))
     return render_template('admin_urls_add.html', form=form)
@@ -131,12 +131,12 @@ def urlmatch(url):
     hitfield = "hits%s" % (ip.version)
     # update hit counters
     if len(hittoday) == 0:
-        get_db().execute("insert into hits (short,hitdate,%s) values (?,date('now'),1)" % (hitfield) ,[short])
+        get_db().execute("insert into hits (short,hitdate,%s) values (?,date('now'),1)" % (hitfield), [short])
     else:
-        get_db().execute("update hits set %s=%s+1 where short=? and hitdate=date('now')" % (hitfield,hitfield) ,[short])
+        get_db().execute("update hits set %s=%s+1 where short=? and hitdate=date('now')" % (hitfield,hitfield), [short])
     get_db().commit()
     # finally redirect
-    return redirect(destination,code=302)
+    return redirect(destination, code=302)
 
 
 @app.route("/<short>/")
@@ -154,10 +154,12 @@ def get_db():
     db = getattr(g, '_database', None)
     if db is None:
         db = g._database = sqlite3.connect(DATABASE)
+
     def make_dicts(cursor, row):
         return dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
     db.row_factory = make_dicts
     return db
+
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -180,10 +182,6 @@ def init_db():
             db.cursor().executescript(f.read())
         db.commit()
 
-# python
-# from shortner import init_db
-# init_db()
-
 
 if __name__ == '__main__':
 
@@ -195,7 +193,3 @@ if __name__ == '__main__':
 
     app.debug = True
     app.run()
-
-
-
-
