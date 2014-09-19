@@ -1,8 +1,15 @@
 {% extends "layout.html" %}
-{% from "_formhelpers.html" import render_field %}
+
+{% block header %}Add URL{% endblock %}
 
 {% block content %}
-  <h2>Add</h2>
+
+<ol class="breadcrumb">
+  <li><a href="{{ url_for('admin_index') }}">Home</a></li>
+  <li><a href="{{ url_for('admin_urls_list') }}">URLs</a></li>
+  <li class="active">Add</li>
+</ol>
+
   <form action="{{ url_for('admin_urls_add') }}" method=post>
     {{ form.hidden_tag() }}
 

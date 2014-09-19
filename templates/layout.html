@@ -34,11 +34,12 @@
           </button>
           <a class="navbar-brand" href="#">URL Shortner</a>
         </div>
+{% if current_user.is_authenticated() %}
+	<!-- logged in nav -->
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>
+            <li class="active"><a href="/admin/">Home</a></li>
+            <li><a href="/admin/urls">URLs</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
@@ -51,32 +52,43 @@
                 <li><a href="#">One more separated link</a></li>
               </ul>
             </li>
+            <li><a href="/admin/about">About</a></li>
+            <li><a href="/logout">Logout</a></li>
           </ul>
         </div><!--/.nav-collapse -->
+{% else %}
+        <!-- logged out nav -->
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="/admin/login">Login</a></li>
+            <li class="active"><a href="/admin/about">About</a></li>
+	  </ul>
+        </div>
+{% endif %}
+
       </div>
     </div>
 
  <div class="container theme-showcase" role="main">
 
       <p>&nbsp;</p>
-      <div class="page-header">
-        <h1>Buttons</h1>
-      </div>
 
 {% for message in get_flashed_messages() %}
- <div class="alert alert-info" role="alert">
+      <p>&nbsp;</p>
+ <div class="alert alert-warning" role="alert">
   {{ message }}
  </div>
 {% endfor %}
+
+      <div class="page-header">
+        <h1>{% block header %}{% endblock %}</h1>
+      </div>
 
 {% from "_formhelpers.html" import render_field %}
 
 {% if current_user.is_authenticated() %}
 <p>Logged in as {{ current_user.username }}, <a href="{{ url_for('logout') }}">Logout</a></p>
-{% else %}
-<p><a href="{{ url_for('login') }}">Login</a></p>
 {% endif %}
-
 
 <div>
 {% block content %}

@@ -1,9 +1,12 @@
 {% extends "layout.html" %}
-
+{% block header %}UKNOF URL Shortner{% endblock %}
 {% block content %}
-<p>admin site</p>
 
-<table>
+<table class="table table-striped">
+<tr>
+	<th>Item</th>
+	<th>Amount</th>
+</tr>
 {% for key,value in totals.iteritems() | sort %}
 <tr>
 	<td>{{ key }}</td>
@@ -11,5 +14,4 @@
 </tr>
 {% endfor %}
 </table>
-<p><a href="{{ url_for('admin_urls_list') }}">URL list</a></p>
 {% endblock %}

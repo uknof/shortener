@@ -94,12 +94,17 @@ def db_totals():
     # items["Hit IPv4"] = total4
     # items["Hit IPv6"] = total6
 
-    urlcount = query_db('select count(*) as urls from urls')[0]["urls"]
-    items["URLs"] = urlcount
+    items["URLs"] = query_db('select count(*) as urls from urls')[0]["urls"]
+    items["Users"] = query_db('select count(*) as users from users')[0]["users"]
+
     return items
 
+@app.route('/admin/about')
+def about():
+    return render_template('about.html')
 
-@app.route('/login', methods=['GET', 'POST'])
+
+@app.route('/admin/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
     if request.method == 'GET':
@@ -112,7 +117,7 @@ def login():
     return redirect(request.args.get('next') or url_for('admin_index'))
 
 
-@app.route('/logout', methods=['GET', 'POST'])
+@app.route('/admin/logout', methods=['GET', 'POST'])
 def logout():
     logout_user()
     return redirect(url_for('index'))

@@ -10,6 +10,7 @@ It is built using:
 * Flask
 * Flask-WTF, Flask-Login
 * sqlite3
+* Bootstrap 3
 
 ## Production deployment
 
