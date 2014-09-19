@@ -18,4 +18,3 @@ create table users (
   last_login string,
   logins integer default 0
 );
-insert into users (username, password) values ('admin', 'admin');

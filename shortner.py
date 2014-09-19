@@ -8,6 +8,7 @@ import random
 import string
 import ipaddr
 import os
+from passlib.hash import pbkdf2_sha256
 #from user import User
 
 VERSION = "0.0.1"
@@ -49,9 +50,12 @@ class User():
 
     @staticmethod
     def processlogin(g, username, password):
-        userdb = query_db("select * from users where username = ? and password = ?", [username, password])
+        userdb = query_db("select * from users where username = ?", [username])
         if len(userdb) == 1:       
-            return User.get(username)
+            # user exists, check the hash
+            hash = userdb[0]["password"]
+            if pbkdf2_sha256.verify(password, hash):
+                return User.get(username)
         return None
 
     @staticmethod
@@ -60,6 +64,14 @@ class User():
         u.username = "nat"
         return u
 
+    @staticmethod
+    def create(username, password):
+        username = username.lower().strip()
+        hash = pbkdf2_sha256.encrypt(password, rounds=200000, salt_size=16)
+        get_db().execute('insert into users (username,password) values (?,?)', [username, hash])
+        get_db().commit()        
+        u = User.get(username) 
+        return u
 
 
 @login_manager.user_loader
@@ -225,7 +237,12 @@ def init_db():
         with app.open_resource('schema.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
-
+        print "Empty database %s created" % (DATABASE)
+        username = "admin"
+        password =  ''.join(random.choice(string.lowercase) for i in range(8))
+        newuser = User.create(username, password)
+        print "New user '%s' created with password '%s'" % (username, password)
+        
 
 if __name__ == '__main__':
 

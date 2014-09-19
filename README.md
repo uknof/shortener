@@ -10,6 +10,7 @@ It is built using:
 * Flask
 * Flask-WTF, Flask-Login
 * sqlite3
+* passlib
 * Bootstrap 3
 
 ## Production deployment
@@ -35,6 +36,8 @@ $ python
 Python 2.7.5 (default, Mar  9 2014, 22:15:05)
 >>> from shortner import init_db
 >>> init_db()
+Empty database urls.db created
+New user 'admin' created with password 'adldxnim'
 >>> exit()
 ```
 
