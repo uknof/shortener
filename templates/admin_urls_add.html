@@ -1,22 +1,19 @@
 {% extends "layout.html" %}
 
-{% block header %}Add URL{% endblock %}
+{% block header %}Shorten URL{% endblock %}
 
 {% block content %}
 
 <ol class="breadcrumb">
   <li><a href="{{ url_for('admin_index') }}">Home</a></li>
   <li><a href="{{ url_for('admin_urls_list') }}">URLs</a></li>
-  <li class="active">Add</li>
+  <li class="active">Shorten</li>
 </ol>
 
   <form action="{{ url_for('admin_urls_add') }}" method=post>
     {{ form.hidden_tag() }}
 
-    {{ render_field(form.specific) }}
-    {{ render_field(form.number) }}
     {{ render_field(form.notes) }}
-    {{ render_field(form.custom) }}
     {{ render_field(form.dest) }}
  
     {{ form.submit }}

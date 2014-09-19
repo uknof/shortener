@@ -9,6 +9,7 @@ import string
 import ipaddr
 import os
 from passlib.hash import pbkdf2_sha256
+import rfc3987
 #from user import User
 
 VERSION = "0.0.1"
@@ -100,11 +101,15 @@ def db_totals():
     if len(totalhits) > 0:
         total4 = totalhits[0]["total4"]
         total6 = totalhits[0]["total6"]
+        if total4 is None:
+            total4 = 0
+        if total6 is None:
+            total6 = 0
 
     items = {}
-    # items["Hits"] = total4 + total6
-    # items["Hit IPv4"] = total4
-    # items["Hit IPv6"] = total6
+    items["Hits"] = total4 + total6
+    items["Hit IPv4"] = total4
+    items["Hit IPv6"] = total6
 
     items["URLs"] = query_db('select count(*) as urls from urls')[0]["urls"]
     items["Users"] = query_db('select count(*) as users from users')[0]["users"]
@@ -113,7 +118,7 @@ def db_totals():
 
 @app.route('/admin/about')
 def about():
-    return render_template('about.html')
+    return render_template('about.html',version=VERSION)
 
 
 @app.route('/admin/login', methods=['GET', 'POST'])
@@ -132,6 +137,7 @@ def login():
 @app.route('/admin/logout', methods=['GET', 'POST'])
 def logout():
     logout_user()
+    session.clear()
     return redirect(url_for('index'))
 
 
@@ -143,16 +149,25 @@ def admin_index():
     return render_template('admin_index.html', totals=totals)
 
 
+def url_dest_valid(dest):
+    if rfc3987.match(dest, rule='URI'):
+        return True
+    return False
+
+
 @app.route('/admin/urls/add', methods=['GET', 'POST'])
 @login_required
 def admin_urls_add():
     form = AddForm(request.form)
     if request.method == 'POST' and form.validate():
-        short = unique_short()
-        get_db().execute('insert into urls (short,dest) values (?,?)', [short, form.dest.data])
-        get_db().commit()
-        flash("URL %s generated" % (short))
-        return redirect(url_for('admin_urls_list'))
+        if url_dest_valid(form.dest.data) is True:
+            short = unique_short()
+            get_db().execute('insert into urls (short,dest) values (?,?)', [short, form.dest.data])
+            get_db().commit()
+            flash("URL %s generated" % (short))
+            return redirect(url_for('admin_urls_list'))
+        else:
+            flash("URL destination is not valid")
     return render_template('admin_urls_add.html', form=form)
 
 
@@ -166,11 +181,11 @@ def admin_urls_list():
 @app.route("/admin/urls/<short>")
 @login_required
 def admin_urls_detail(short):
-    match = query_db("select dest from urls where short=?", [short])
+    match = query_db("select * from urls where short=?", [short])
     if len(match) == 0:
         return redirect(url_for('admin_urls_list'))
     hits = query_db("select * from hits where short=? order by hitdate desc", [short])
-    return render_template('admin_urls_detail.html', url=match, hits=hits)
+    return render_template('admin_urls_detail.html', url=match[0], hits=hits)
 
 
 def urlmatch(url):

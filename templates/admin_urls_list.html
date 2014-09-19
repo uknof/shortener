@@ -8,7 +8,9 @@
   No URLs shortened yet
  </div>
 {% else %}
-<table>
+
+<h3>{{ urls | length }} existing:</h3>
+<table class="table table-striped">
 <tr>
     <th>Short</th>
     <th>Destination</th>

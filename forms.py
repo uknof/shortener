@@ -2,12 +2,9 @@ from flask.ext.wtf import Form
 from wtforms import TextField, TextAreaField, BooleanField, SubmitField, validators
 
 class AddForm(Form):
-  specific = BooleanField("Meeting specific")
-  number = TextField("Meeting number")
-  custom = TextField("Custom")
   notes = TextField("Notes")
   dest = TextField("Destination URL", [validators.Required("Destination URL required")])
-  submit = SubmitField("Add")
+  submit = SubmitField("Shorten")
 
 class LoginForm(Form):
   username = TextField("Username")

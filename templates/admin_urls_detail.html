@@ -1,12 +1,14 @@
 {% extends "layout.html" %}
-
+{% block header %}URL {{ url.short }} {% endblock %}
 {% block content %}
-<p>detail</p>
-
-<p>{{ url }}</p>
-
-
-<table border=1>
+{{ url }}
+<h3>Hits</h3>
+<table class="table table-striped"
+<tr>
+	<th>Date</th>
+	<th>IPv4</th>
+	<th>IPv6</th>
+</tr>
 {% for hit in hits %}
 <tr>
     <td>{{ hit.hitdate }}</td>
@@ -14,6 +16,11 @@
     <td>{{ hit.hits6 }}</td>
 </tr>
 {% endfor %}
+<tr>
+	<td>Total</td>
+	<td>X</td>
+	<td>X</td>
+</tr>
 </table>
 
 {% endblock %}

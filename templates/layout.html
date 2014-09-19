@@ -41,27 +41,20 @@
             <li class="active"><a href="/admin/">Home</a></li>
             <li><a href="/admin/urls">URLs</a></li>
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> {{ current_user.username }} <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li><a href="#">Action</a></li>
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
+                <li><a href="/admin/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
               </ul>
             </li>
             <li><a href="/admin/about">About</a></li>
-            <li><a href="/logout">Logout</a></li>
           </ul>
         </div><!--/.nav-collapse -->
 {% else %}
         <!-- logged out nav -->
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="/admin/login">Login</a></li>
-            <li class="active"><a href="/admin/about">About</a></li>
+            <li><a href="/admin/login">Login</a></li>
+            <li><a href="/admin/about">About</a></li>
 	  </ul>
         </div>
 {% endif %}
@@ -85,10 +78,6 @@
       </div>
 
 {% from "_formhelpers.html" import render_field %}
-
-{% if current_user.is_authenticated() %}
-<p>Logged in as {{ current_user.username }}, <a href="{{ url_for('logout') }}">Logout</a></p>
-{% endif %}
 
 <div>
 {% block content %}
