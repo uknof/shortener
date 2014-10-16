@@ -1,8 +1,10 @@
 {% extends "layout.html" %}
-{% block header %}URL {{ url.short }} {% endblock %}
+{% block header %}URL /{{ url.short }} {% endblock %}
 {% block content %}
+
 {{ url }}
-<h3>Hits</h3>
+<div class="panel panel-primary">
+<div class="panel-heading">Hits</div>
 <table class="table table-striped"
 <tr>
 	<th>Date</th>
@@ -22,5 +24,6 @@
 	<td>X</td>
 </tr>
 </table>
+</div>
 
 {% endblock %}

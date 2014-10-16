@@ -2,7 +2,9 @@
 {% block header %}UKNOF URL Shortner{% endblock %}
 {% block content %}
 
-<h3>Database totals</h3>
+
+<div class="panel panel-primary">
+<div class="panel-heading">Database totals</div>
 <table class="table table-striped">
 <tr>
 	<th>Item</th>
@@ -15,6 +17,7 @@
 </tr>
 {% endfor %}
 </table>
+</div>
 
 <p><a href="{{ url_for('admin_urls_add') }}"  class="btn btn-primary btn-lg active" role="button">Shorten URL <span class="glyphicon glyphicon-flash"></span></a></p>
 {% endblock %}

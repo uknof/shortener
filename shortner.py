@@ -16,7 +16,7 @@ VERSION = "0.0.1"
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.secret_key = 'development key'
+app.secret_key = ''.join(random.choice(string.lowercase) for i in range(16))
 
 DATABASE = "urls.db"
 DATABASEREQ = 0.1
@@ -162,7 +162,8 @@ def admin_urls_add():
     if request.method == 'POST' and form.validate():
         if url_dest_valid(form.dest.data) is True:
             short = unique_short()
-            get_db().execute('insert into urls (short,dest) values (?,?)', [short, form.dest.data])
+            createdby = g.user.username
+            get_db().execute("insert into urls (short,dest,createdon,createdby) values (?,?,date('now'),?)", [short, form.dest.data,createdby])
             get_db().commit()
             flash("URL %s generated" % (short))
             return redirect(url_for('admin_urls_list'))
@@ -190,7 +191,7 @@ def admin_urls_detail(short):
 
 def urlmatch(url):
     short = url.lower()
-    match = query_db("select dest from urls where short=?", [short])
+    match = query_db("select dest from urls where (short=? or custom=?)", [short, short])
     if len(match) == 0:
         # no match found
         return "No match found"
@@ -210,10 +211,18 @@ def urlmatch(url):
     return redirect(destination, code=302)
 
 
+@app.route("/<short>/<short1>/<short2>/")
+@app.route("/<short>/<short1>/<short2>")
+@app.route("/<short>/<short1>/")
+@app.route("/<short>/<short1>")
 @app.route("/<short>/")
 @app.route("/<short>")
-def urlcheck(short):
-    return urlmatch(short)
+def urlcheck(short, short1=None, short2=None):
+        if short1 is not None:
+            short = short + "/" + short1
+        if short2 is not None:
+            short = short + "/" + short2
+        return urlmatch(short)
 
 
 @app.route("/")
@@ -264,6 +273,10 @@ if __name__ == '__main__':
     if os.path.isfile(DATABASE) is False:
         print ""
         print "ERROR: sqlite db does not exist: %s" % (DATABASE)
+        print "    $ python"
+        print "    >>> from shortner import init_db"
+        print "    >>> init_db()"
+        print "    >>> exit()"
         print ""
         exit(1)
 

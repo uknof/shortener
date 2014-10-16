@@ -1,7 +1,10 @@
 drop table if exists urls;
 create table urls (
   short string primary key,
-  dest string not null
+  custom string,
+  dest string not null,
+  createdby string not null,
+  createdon string not null
 );
 drop table if exists hits;
 create table hits (

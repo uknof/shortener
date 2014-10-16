@@ -10,19 +10,21 @@
 {% else %}
 
 <h3>{{ urls | length }} existing:</h3>
-<table class="table table-striped">
+<table class="table table-striped table-condensed">
 <tr>
     <th>Short</th>
+    <th>Custom</th>
     <th>Destination</th>
     <th>Hits v4</th>
     <th>Hits v6</th>
 </tr>
 {% for url in urls %}
 <tr>
-    <td><a href="{{ url_for('admin_urls_list') }}/{{ url.short }}">{{ url.short }}</a></td>
+    <td><a href="{{ url_for('admin_urls_list') }}/{{ url.short }}">/{{ url.short }}</a></td>
+    <td><a href="{{ url_for('admin_urls_list') }}/{{ url.short }}">{{ url.custom }}</a></td>
     <td>{{ url.dest }}</td>
-    <td>{{ url.hits4 }}</td>
-    <td>{{ url.hits6 }}</td>
+    <td><span class="label {{ 'label-default' if url.hits4 == None else 'label-success' }}">{{ url.hits4 }}</span></td>
+    <td><span class="label {{ 'label-default' if url.hits6 == None else 'label-success' }}">{{ url.hits6 }}</span></td>
 </tr>
 {% endfor %}
 </table>
