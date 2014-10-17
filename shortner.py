@@ -211,10 +211,10 @@ def urlmatch(url):
     return redirect(destination, code=302)
 
 
-@app.route("/<short>/<short1>/<short2>/")
-@app.route("/<short>/<short1>/<short2>")
-@app.route("/<short>/<short1>/")
-@app.route("/<short>/<short1>")
+#@app.route("/<short>/<short1>/<short2>/")
+#@app.route("/<short>/<short1>/<short2>")
+#@app.route("/<short>/<short1>/")
+#@app.route("/<short>/<short1>")
 @app.route("/<short>/")
 @app.route("/<short>")
 def urlcheck(short, short1=None, short2=None):
