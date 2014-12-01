@@ -1,5 +1,5 @@
 from flask.ext.wtf import Form
-from wtforms import TextField, TextAreaField, BooleanField, SubmitField, validators
+from wtforms import TextField, TextAreaField, BooleanField, SubmitField, PasswordField, validators
 
 class AddForm(Form):
   notes = TextField("Notes")
@@ -8,6 +8,6 @@ class AddForm(Form):
 
 class LoginForm(Form):
   username = TextField("Username")
-  password = TextField("Password")
+  password = PasswordField("Password")
   submit = SubmitField("Login")
-  
+

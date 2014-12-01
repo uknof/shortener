@@ -10,6 +10,9 @@ import ipaddr
 import os
 from passlib.hash import pbkdf2_sha256
 import rfc3987
+import json
+import shortobjs
+
 #from user import User
 
 VERSION = "0.0.1"
@@ -51,19 +54,11 @@ class User():
 
     @staticmethod
     def processlogin(g, username, password):
-        userdb = query_db("select * from users where username = ?", [username])
-        if len(userdb) == 1:       
-            # user exists, check the hash
-            hash = userdb[0]["password"]
-            if pbkdf2_sha256.verify(password, hash):
-                return User.get(username)
-        return None
+        return shortobjs.User.authenticate(username, password)
 
     @staticmethod
     def get(username):
-        u = User()
-        u.username = "nat"
-        return u
+        return shortobjs.User.get(username)
 
     @staticmethod
     def create(username, password):
@@ -86,14 +81,6 @@ def before_request():
     print g.user
 
 
-def unique_short():
-    matches = 1
-    while matches == 1:
-        short = ''.join(random.choice(['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z']) for i in range(5))
-        matches = query_db("select * from urls where short=?", [short])
-    return short
-
-
 def db_totals():
     total4 = 0
     total6 = 0
@@ -111,7 +98,7 @@ def db_totals():
     items["Hit IPv4"] = total4
     items["Hit IPv6"] = total6
 
-    items["URLs"] = query_db('select count(*) as urls from urls')[0]["urls"]
+    items["URLs"] = shortobjs.Url.total()
     items["Users"] = query_db('select count(*) as users from users')[0]["users"]
 
     return items
@@ -148,6 +135,13 @@ def admin_index():
     totals = db_totals()
     return render_template('admin_index.html', totals=totals)
 
+@app.route('/admin/api')
+@login_required
+def admin_api():
+    obj = { "testa":123, "testb":456 }
+    urls = shortobjs.Url.get_all()
+    return json.dumps([dict(url.__dict__) for url in urls])
+
 
 def url_dest_valid(dest):
     if rfc3987.match(dest, rule='URI'):
@@ -161,7 +155,7 @@ def admin_urls_add():
     form = AddForm(request.form)
     if request.method == 'POST' and form.validate():
         if url_dest_valid(form.dest.data) is True:
-            short = unique_short()
+            short = shortobjs.Url.unique_short()
             createdby = g.user.username
             get_db().execute("insert into urls (short,dest,createdon,createdby) values (?,?,date('now'),?)", [short, form.dest.data,createdby])
             get_db().commit()
@@ -175,27 +169,27 @@ def admin_urls_add():
 @app.route("/admin/urls")
 @login_required
 def admin_urls_list():
-    urls = query_db('select *,(select sum(hits4) from hits where hits.short=urls.short) as hits4,(select sum(hits6) from hits where hits.short=urls.short) as hits6 from urls')
+    urls = shortobjs.Url.get_all()
     return render_template('admin_urls_list.html', urls=urls)
 
 
 @app.route("/admin/urls/<short>")
 @login_required
 def admin_urls_detail(short):
-    match = query_db("select * from urls where short=?", [short])
-    if len(match) == 0:
+    url = shortobjs.Url(short)
+    if url == None:
         return redirect(url_for('admin_urls_list'))
-    hits = query_db("select * from hits where short=? order by hitdate desc", [short])
-    return render_template('admin_urls_detail.html', url=match[0], hits=hits)
+    return render_template('admin_urls_detail.html', url=url, hits=url.hits())
 
 
 def urlmatch(url):
-    short = url.lower()
-    match = query_db("select dest from urls where (short=? or custom=?)", [short, short])
-    if len(match) == 0:
-        # no match found
+    shorturl = url.lower()
+    match = shortobjs.Url.match(shorturl)
+    if match is None:
         return "No match found"
-    destination = match[0]['dest']
+    destination = match.dest
+    short = match.short
+
     # work out src ip version
     srcip = request.remote_addr
     ip = ipaddr.IPAddress(srcip)

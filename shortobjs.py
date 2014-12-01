@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sqlite3
+from passlib.hash import pbkdf2_sha256
 
 DATABASE = "urls.db"
 
@@ -20,7 +21,38 @@ def query_db(query, args=(), one=False):
     return (rv[0] if rv else None) if one else rv
 
 class User():
-    username = "nat"
+
+    def __init__(self, username):
+        username = username.lower().strip()
+        userdb = query_db("select * from users where username = ?", [username])[0]
+        self.username = userdb["username"]
+
+    def is_active(self):
+        return True
+
+    def is_authenticated(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.username
+
+    @staticmethod
+    def get(username):
+        return User(username)
+
+    @staticmethod
+    def authenticate(username, password):
+        username = username.lower().strip()
+        userdb = query_db("select * from users where username = ?", [username])
+        if len(userdb) == 1:       
+            # user exists, check the hash
+            hash = userdb[0]["password"]
+            if pbkdf2_sha256.verify(password, hash):
+                return User(username)
+        return None
 
 class Url():
 
