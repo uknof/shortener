@@ -3,3 +3,4 @@ Flask-Login
 ipaddr
 sqlite3
 passlib
+nose
