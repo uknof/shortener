@@ -54,6 +54,15 @@ class User():
                 return User(username)
         return None
 
+    @staticmethod
+    def create(username, password):
+        username = username.lower().strip()
+        hash = pbkdf2_sha256.encrypt(password, rounds=200000, salt_size=16)
+        get_db().execute('insert into users (username,password) values (?,?)', [username, hash])
+        get_db().commit()        
+        u = User(username) 
+        return u
+
 class Url():
 
     def __init__(self, short):

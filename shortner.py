@@ -29,50 +29,9 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 
-class User():
-
-    # def __init__(self , username ,password , email):
-    #    self.username = username
-    #    self.password = password
-    #    self.email = email
-    #    self.registered_on = datetime.utcnow()
-
-    def is_authenticated(self):
-        return True
-
-    def is_active(self):
-        return True
-
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        return unicode(self.username)
-
-    def __repr__(self):
-        return '<User %r>' % (self.username)
-
-    @staticmethod
-    def processlogin(g, username, password):
-        return shortobjs.User.authenticate(username, password)
-
-    @staticmethod
-    def get(username):
-        return shortobjs.User.get(username)
-
-    @staticmethod
-    def create(username, password):
-        username = username.lower().strip()
-        hash = pbkdf2_sha256.encrypt(password, rounds=200000, salt_size=16)
-        get_db().execute('insert into users (username,password) values (?,?)', [username, hash])
-        get_db().commit()        
-        u = User.get(username) 
-        return u
-
-
 @login_manager.user_loader
 def load_user(username):
-    return User.get(username)
+    return shortobjs.User.get(username)
 
 
 @app.before_request
@@ -113,7 +72,7 @@ def login():
     form = LoginForm(request.form)
     if request.method == 'GET':
         return render_template('login.html', form=form)
-    registered_user = User.processlogin(g,form.username.data, form.password.data)
+    registered_user = shortobjs.User.authenticate(form.username.data, form.password.data)
     if registered_user is None:
         flash('Username or Password is invalid', 'error')
         return redirect(url_for('login'))
@@ -258,7 +217,7 @@ def init_db():
         print "Empty database %s created" % (DATABASE)
         username = "admin"
         password =  ''.join(random.choice(string.lowercase) for i in range(8))
-        newuser = User.create(username, password)
+        newuser = shortobjs.User.create(username, password)
         print "New user '%s' created with password '%s'" % (username, password)
         
 
