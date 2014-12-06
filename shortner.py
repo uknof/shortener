@@ -70,12 +70,21 @@ def admin_index():
     totals = Totals()
     return render_template('admin_index.html', totals=totals.get_all())
 
+# API
+
 @app.route('/admin/api')
 @login_required
 def admin_api():
     obj = { "testa":123, "testb":456 }
     urls = Url.get_all()
     return json.dumps([dict(url.__dict__) for url in urls])
+
+@app.route('/admin/api/users')
+@login_required
+def admin_api_users():
+    users = User.get_all()
+    return json.dumps([dict(user.__dict__) for user in users])
+
 
 # URLS
 

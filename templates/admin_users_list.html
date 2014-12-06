@@ -10,16 +10,22 @@
 {% else %}
 
 <h3>{{ users | length }} existing:</h3>
-<table class="table table-striped table-condensed">
-<tr>
-    <th>Username</th>
-</tr>
+<table class="table table-striped table-condensed" data-toggle="table"  data-sort-name="username">
+    <thead>
+        <tr>
+            <th data-field="username" data-sortable="true">Username</th>
+            <th data-field="random" data-sortable="true">random</th>
+        </tr>
+    </thead>
 {% for user in users %}
 <tr>
     <td><a href="{{ url_for('admin_users_list') }}/{{ user.username }}">{{ user.username }}</a></td>
+    <td>{{ user.random }}</td>
 </tr>
 {% endfor %}
 </table>
+<script type="text/javascript">
+</script>
 {% endif %}
 
 

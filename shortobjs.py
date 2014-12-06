@@ -31,6 +31,7 @@ class User():
         if len(userdb) == 0:
 	       raise Exception("No user '%s' found" % (username))
         self.username = userdb[0]["username"]
+        self.random = ''.join(random.choice(['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z']) for i in range(5))
 
     def is_active(self):
         return True
@@ -57,7 +58,7 @@ class User():
     @staticmethod
     def get_all():
         users = []
-        for userrow in query_db("select username from users order by username"):
+        for userrow in query_db("select username from users"):
             username = userrow["username"]
             user = User(username)
             users.append(user)
