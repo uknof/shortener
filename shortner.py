@@ -81,6 +81,21 @@ def admin_api_urls():
     urls = Url.get_all()
     return json.dumps([dict(url.__dict__) for url in urls])
 
+@app.route('/admin/api/urls/create', methods=['POST'])
+@login_required
+def admin_api_urls_create():
+    if "url" not in request.json:
+        return jsonify(success=False)
+    newurl = request.json["url"]
+    if "dest" not in newurl:
+        return jsonify(success=False)
+    dest = newurl["dest"]
+    custom = newurl["custom"]
+    notes = newurl["notes"]
+    short = Url.unique_short()
+    u = Url.create(short, dest, g.user.username, custom=custom, notes=notes)
+    return jsonify(success=True, short=u.short)
+
 @app.route('/admin/api/totals')
 @login_required
 def admin_api_totals():

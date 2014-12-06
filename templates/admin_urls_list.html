@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<table class="table table-striped table-condensed" data-toggle="table" data-sort-name="dest" data-show-refresh="true" data-url="/admin/api/urls">
+<table id="urltable" class="table table-striped table-condensed" data-toggle="table" data-search="true" data-sort-name="dest" data-show-refresh="true" data-url="/admin/api/urls">
     <thead>
         <tr>
             <th data-field="short" data-sortable="true">Short</th>
@@ -34,6 +34,12 @@
             <label class="col-sm-3 control-label">Custom</label>
             <div class="col-sm-3">
                 <input type="text" class="form-control" name="custom" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Notes</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" name="notes" />
             </div>
         </div>
         <div class="form-group">
@@ -78,8 +84,21 @@ $(document).ready(function() {
                         message: 'Must be between 3 and 16 characters'
                     },
                     regexp: {
-                        regexp: /^[a-z0-9]+$/,
-                        message: 'Lowercase, numbers and slashes allowed'
+                        regexp: /^[a-z0-9][a-z0-9\/]+$/,
+                        message: "lower case + numbers, can't start with slash"
+                    }
+                }
+            },
+            notes: {
+                validators: {
+                    stringLength: {
+                        min: 0,
+                        max: 255,
+                        message: 'Maximum of 255 chars'
+                    },
+                    regexp: {
+                        regexp: /^[a-zA-Z0-9., ]+$/,
+                        message: 'No special characters allowed'
                     }
                 }
             }
@@ -94,10 +113,40 @@ $(document).ready(function() {
 
             // Get the BootstrapValidator instance
             var bv = $form.data('bootstrapValidator');
-            alert("hello");
+            var dest = $('#newUrlForm').find('input[name="destination"]').val();
+            var custom = $('#newUrlForm').find('input[name="custom"]').val();
+            var notes = $('#newUrlForm').find('input[name="notes"]').val();
+            url = { "dest": dest, "custom": custom, "notes": notes }
+            $.ajax({
+                type: "POST",
+                url: "/admin/api/urls/create",
+                data: JSON.stringify({ url: url }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data){newUrlState(data);},
+                failure: function(errMsg) {
+                    alert(errMsg);
+                }
+            });
 
     });
 });
+function newUrlState(data) {
+    success = data["success"]
+    if (success) {
+        shrt = data["short"];
+        bootbox.alert("URL shortened to " + shrt, function() {
+            $('#urltable').bootstrapTable('refresh', {url: '/admin/api/urls'});
+            $('#newUrlForm').trigger("reset");
+            $('#newUrlForm').data('bootstrapValidator').resetForm();
+        });
+    } else {
+        bootbox.alert("Login failed", function() {
+            $('#newUrlForm').trigger("reset");
+            $('#newUrlForm').data('bootstrapValidator').resetForm();
+        });
+    }
 
+}
 </script>
 {% endblock %}

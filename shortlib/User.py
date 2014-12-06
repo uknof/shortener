@@ -3,6 +3,7 @@
 import random
 from passlib.hash import pbkdf2_sha256
 from Database import Database as db
+from Url import Url
 
 class User():
 
@@ -12,7 +13,10 @@ class User():
         if len(userdb) == 0:
 	       raise Exception("No user '%s' found" % (username))
         self.username = userdb[0]["username"]
-        self.random = ''.join(random.choice(['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z']) for i in range(5))
+        self.logins = userdb[0]["logins"]
+        self.last_login = userdb[0]["last_login"]
+        self.urls = Url.get_all(self.username)
+        self.urlcount = len(self.urls)
 
     def is_active(self):
         return True
@@ -64,6 +68,9 @@ class User():
             # user exists, check the hash
             hash = userdb[0]["password"]
             if pbkdf2_sha256.verify(password, hash):
+                d = db.get_db()
+                d.execute("update users set logins = logins + 1, last_login = date('now') where username = ?", [username])
+                d.commit() 
                 return User(username)
         return None
 

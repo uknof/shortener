@@ -13,6 +13,7 @@ class Url():
         row = rows[0]
         self.custom = row["custom"]
         self.dest = row["dest"]
+        self.notes = row["notes"]
         self.createdby = row["createdby"]
         self.createdon = row["createdon"]
         self.short = row["short"]
@@ -31,6 +32,7 @@ class Url():
     def delete(self):
         db = get_db()
         db.execute("delete from urls where short = ?", [self.short])
+        db.execute("delete from hits where short = ?", [self.short])
         db.commit()
         return
 
@@ -62,9 +64,12 @@ class Url():
         return Url(match[0]["short"])
 
     @staticmethod
-    def get_all():
+    def get_all(createdby=None):
         urls = []
-        urlrows = db.query_db('select short from urls')
+        if createdby is None:
+            urlrows = db.query_db('select short from urls')
+        else:
+            urlrows = db.query_db('select short from urls where createdby = ?', [createdby])
         for row in urlrows:
             url = Url(row["short"])
             urls.append(url)
@@ -85,11 +90,12 @@ class Url():
         return False
 
     @staticmethod
-    def create(short, dest, createdby):
-        db = get_db()
-        db.execute("insert into urls (short,dest,createdon,createdby) values (?,?,date('now'),?)", [short, dest,createdby])
-        db.commit()
-        return
+    def create(short, dest, createdby, custom='', notes=''):
+        d = db.get_db()
+        d.execute("insert into urls (short,dest,createdon,createdby,custom,notes) values (?,?,date('now'),?,?,?)", [short, dest,createdby,custom,notes])
+        d.commit()
+        newurl = Url(short)
+        return newurl
 
 
 

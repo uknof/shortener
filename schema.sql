@@ -2,6 +2,7 @@ drop table if exists urls;
 create table urls (
   short string primary key,
   custom string,
+  notes string,
   dest string not null,
   createdby string not null,
   createdon string not null

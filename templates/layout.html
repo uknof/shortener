@@ -46,21 +46,21 @@
             <li><a href="/admin/">Home</a></li>
             <li><a href="/admin/urls">URLs</a></li>
             <li><a href="/admin/users">Users</a></li>
+            <li><a href="/admin/about">About</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> {{ current_user.username }} <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
                 <li><a href="/admin/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
               </ul>
             </li>
-            <li><a href="/admin/about">About</a></li>
           </ul>
         </div><!--/.nav-collapse -->
 {% else %}
         <!-- logged out nav -->
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a href="/admin/login">Login</a></li>
             <li><a href="/admin/about">About</a></li>
+            <li><a href="/admin/login">Login</a></li>
 	  </ul>
         </div>
 {% endif %}
@@ -83,7 +83,6 @@
         <h1>{% block header %}{% endblock %}</h1>
       </div>
 
-{% from "_formhelpers.html" import render_field %}
 
 <div>
 {% block content %}
