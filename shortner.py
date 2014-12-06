@@ -11,7 +11,7 @@ import os
 from passlib.hash import pbkdf2_sha256
 import rfc3987
 import json
-import shortobjs
+from shortobjs import User, Url, Totals
 
 #from user import User
 
@@ -31,7 +31,7 @@ login_manager.login_view = 'login'
 
 @login_manager.user_loader
 def load_user(username):
-    return shortobjs.User.get(username)
+    return User.get(username)
 
 
 @app.before_request
@@ -57,7 +57,7 @@ def db_totals():
     items["Hit IPv4"] = total4
     items["Hit IPv6"] = total6
 
-    items["URLs"] = shortobjs.Url.total()
+    items["URLs"] = Url.total()
     items["Users"] = query_db('select count(*) as users from users')[0]["users"]
 
     return items
@@ -72,7 +72,7 @@ def login():
     form = LoginForm(request.form)
     if request.method == 'GET':
         return render_template('login.html', form=form)
-    registered_user = shortobjs.User.authenticate(form.username.data, form.password.data)
+    registered_user = User.authenticate(form.username.data, form.password.data)
     if registered_user is None:
         flash('Username or Password is invalid', 'error')
         return redirect(url_for('login'))
@@ -91,14 +91,14 @@ def logout():
 @app.route('/admin')
 @login_required
 def admin_index():
-    totals = db_totals()
-    return render_template('admin_index.html', totals=totals)
+    totals = Totals()
+    return render_template('admin_index.html', totals=totals.get_all())
 
 @app.route('/admin/api')
 @login_required
 def admin_api():
     obj = { "testa":123, "testb":456 }
-    urls = shortobjs.Url.get_all()
+    urls = Url.get_all()
     return json.dumps([dict(url.__dict__) for url in urls])
 
 
@@ -114,7 +114,7 @@ def admin_urls_add():
     form = AddForm(request.form)
     if request.method == 'POST' and form.validate():
         if url_dest_valid(form.dest.data) is True:
-            short = shortobjs.Url.unique_short()
+            short = Url.unique_short()
             createdby = g.user.username
             get_db().execute("insert into urls (short,dest,createdon,createdby) values (?,?,date('now'),?)", [short, form.dest.data,createdby])
             get_db().commit()
@@ -128,14 +128,14 @@ def admin_urls_add():
 @app.route("/admin/urls")
 @login_required
 def admin_urls_list():
-    urls = shortobjs.Url.get_all()
+    urls = Url.get_all()
     return render_template('admin_urls_list.html', urls=urls)
 
 
 @app.route("/admin/urls/<short>")
 @login_required
 def admin_urls_detail(short):
-    url = shortobjs.Url(short)
+    url = Url(short)
     if url == None:
         return redirect(url_for('admin_urls_list'))
     return render_template('admin_urls_detail.html', url=url, hits=url.hits())
@@ -143,7 +143,7 @@ def admin_urls_detail(short):
 
 def urlmatch(url):
     shorturl = url.lower()
-    match = shortobjs.Url.match(shorturl)
+    match = Url.match(shorturl)
     if match is None:
         return "No match found"
     destination = match.dest
@@ -217,7 +217,7 @@ def init_db():
         print "Empty database %s created" % (DATABASE)
         username = "admin"
         password =  ''.join(random.choice(string.lowercase) for i in range(8))
-        newuser = shortobjs.User.create(username, password)
+        newuser = User.create(username, password)
         print "New user '%s' created with password '%s'" % (username, password)
         
 

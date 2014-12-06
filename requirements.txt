@@ -4,3 +4,4 @@ ipaddr
 sqlite3
 passlib
 nose
+rfc3987

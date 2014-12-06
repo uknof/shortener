@@ -103,6 +103,16 @@ class User():
         db.commit()
         return None
 
+
+class Totals():
+
+    def __init__(self):
+        return
+
+    def get_all(self):
+        return {}
+
+
 class Url():
 
     def __init__(self, short):
