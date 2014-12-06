@@ -30,23 +30,23 @@ class Url():
         return []
 
     def delete(self):
-        db = get_db()
-        db.execute("delete from urls where short = ?", [self.short])
-        db.execute("delete from hits where short = ?", [self.short])
-        db.commit()
+        d = db.get_db()
+        d.execute("delete from urls where short = ?", [self.short])
+        d.execute("delete from hits where short = ?", [self.short])
+        d.commit()
         return
 
     def hits_record(self, sourceip):
-        db = get_db()
+        d = db.get_db()
         ip = ipaddr.IPAddress(sourceip)
         hittoday = db.query_db("select * from hits where short=? and hitdate=date('now')", [self.short])
         hitfield = "hits%s" % (ip.version)
         # update hit counters
         if len(hittoday) == 0:
-            db.execute("insert into hits (short,hitdate,%s) values (?,date('now'),1)" % (hitfield), [self.short])
+            d.execute("insert into hits (short,hitdate,%s) values (?,date('now'),1)" % (hitfield), [self.short])
         else:
-            db.execute("update hits set %s=%s+1 where short=? and hitdate=date('now')" % (hitfield,hitfield), [self.short])
-        db.commit()
+            d.execute("update hits set %s=%s+1 where short=? and hitdate=date('now')" % (hitfield,hitfield), [self.short])
+        d.commit()
 
         return
 

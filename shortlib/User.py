@@ -15,8 +15,7 @@ class User():
         self.username = userdb[0]["username"]
         self.logins = userdb[0]["logins"]
         self.last_login = userdb[0]["last_login"]
-        self.urls = Url.get_all(self.username)
-        self.urlcount = len(self.urls)
+        self.urlcount = len(Url.get_all(self.username))
 
     def is_active(self):
         return True
