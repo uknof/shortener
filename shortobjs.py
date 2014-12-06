@@ -20,12 +20,15 @@ def query_db(query, args=(), one=False):
     cur.close()
     return (rv[0] if rv else None) if one else rv
 
+
 class User():
 
     def __init__(self, username):
         username = username.lower().strip()
-        userdb = query_db("select * from users where username = ?", [username])[0]
-        self.username = userdb["username"]
+        userdb = query_db("select * from users where username = ?", [username])
+        if len(userdb) == 0:
+	       raise Exception("No user '%s' found" % (username))
+        self.username = userdb[0]["username"]
 
     def is_active(self):
         return True
@@ -44,6 +47,24 @@ class User():
         return User(username)
 
     @staticmethod
+    def get_all():
+        users = []
+        for userrow in query_db("select username from users order by username"):
+            username = userrow["username"]
+            user = User(username)
+            users.append(user)
+        return users
+
+    @staticmethod
+    def exists(username):
+        username = username.lower().strip()
+        userdb = query_db("select * from users where username = ?", [username])
+        if len(userdb) == 0:
+	    return False
+        else:
+            return True
+
+    @staticmethod
     def authenticate(username, password):
         username = username.lower().strip()
         userdb = query_db("select * from users where username = ?", [username])
@@ -57,11 +78,28 @@ class User():
     @staticmethod
     def create(username, password):
         username = username.lower().strip()
+        if User.exists(username) is True:
+            raise Exception("user '%s' already exists" % (username))
         hash = pbkdf2_sha256.encrypt(password, rounds=200000, salt_size=16)
-        get_db().execute('insert into users (username,password) values (?,?)', [username, hash])
-        get_db().commit()        
-        u = User(username) 
+        db = get_db()
+        db.execute('insert into users (username,password) values (?,?)', [username, hash])
+        db.commit()        
+        if User.exists(username) is False:
+	       raise Exception("created user '%s' does not exist" % (username))
+        u = User(username)
+        if u is None:
+           raise Exception("created user '%s' is None" % (username))
         return u
+
+    @staticmethod
+    def delete(username):
+        username = username.lower().strip()
+        if User.exists(username) is False:
+            raise Exception("user '%s' does not exist" % (username))
+        db = get_db()
+        db.execute('delete from users where username = ?', [username])
+        db.commit()
+        return None
 
 class Url():
 
@@ -93,7 +131,6 @@ class Url():
         if len(match) == 0:
             return None
         return Url(match[0]["short"])
-
 
     @staticmethod
     def get_all():
