@@ -85,6 +85,12 @@ def admin_api_users():
     users = User.get_all()
     return json.dumps([dict(user.__dict__) for user in users])
 
+@app.route('/admin/api/urls')
+@login_required
+def admin_api_urls():
+    urls = Url.get_all()
+    return json.dumps([dict(url.__dict__) for url in urls])
+
 
 # URLS
 
@@ -107,8 +113,7 @@ def admin_urls_add():
 @app.route("/admin/urls")
 @login_required
 def admin_urls_list():
-    urls = Url.get_all()
-    return render_template('admin_urls_list.html', urls=urls)
+    return render_template('admin_urls_list.html')
 
 
 @app.route("/admin/urls/<short>")
@@ -147,9 +152,7 @@ def urlmatch(url):
 @app.route("/admin/users")
 @login_required
 def admin_users_list():
-    users = User.get_all()
-    return render_template('admin_users_list.html', users=users)
-
+    return render_template('admin_users_list.html')
 
 @app.route("/admin/users/add")
 @login_required
