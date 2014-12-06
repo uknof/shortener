@@ -70,10 +70,32 @@ $(document).ready(function() {
 
             // Get the BootstrapValidator instance
             var bv = $form.data('bootstrapValidator');
-            alert("hello");
-
+            var username = $('#loginForm').find('input[name="username"]').val();
+            var password = $('#loginForm').find('input[name="password"]').val();
+            login = { "username": username, "password": password }
+            $.ajax({
+                type: "POST",
+                url: "/admin/api/login",
+                data: JSON.stringify({ login: login }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data){loginState(data["success"]);},
+                failure: function(errMsg) {
+                    alert(errMsg);
+                }
+            });
     });
 });
+function loginState(result) {
+    if (result) {
+        window.location.href = "/admin/";
+    } else {
+        bootbox.alert("Login failed", function() {
+            $('#loginForm').trigger("reset");
+            $('#loginForm').data('bootstrapValidator').resetForm();
+        });
+    }
 
+}
 </script>
 {% endblock %}

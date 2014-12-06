@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from flask import Flask, render_template, request, redirect, flash, url_for, g, session
+from flask import Flask, render_template, request, redirect, flash, url_for, g, session, jsonify
 from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
 from forms import AddForm, LoginForm
 import random
@@ -41,24 +41,16 @@ def about():
     return render_template('about.html',version=VERSION)
 
 
-@app.route('/admin/login', methods=['GET', 'POST'])
+@app.route('/admin/login')
 def login():
-    form = LoginForm(request.form)
-    if request.method == 'GET':
-        return render_template('login.html', form=form)
-    registered_user = User.authenticate(form.username.data, form.password.data)
-    if registered_user is None:
-        flash('Username or Password is invalid', 'error')
-        return redirect(url_for('login'))
-    login_user(registered_user)
-    return redirect(request.args.get('next') or url_for('admin_index'))
+    return render_template('login.html')
 
 
 @app.route('/admin/logout', methods=['GET', 'POST'])
 def logout():
     logout_user()
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 
 @app.route('/admin/')
@@ -69,9 +61,20 @@ def admin_index():
 
 # API
 
-@app.route('/admin/api/login')
+@app.route('/admin/api/login', methods=['POST'])
 def admin_api_login():
-    return json.dumps({"success": False})
+    if "login" not in request.json:
+        return jsonify(success=False)
+    login = request.json["login"]
+    if "username" not in login or "password" not in login:
+        return jsonify(success=False)
+    username = login["username"]
+    password = login["password"]
+    registered_user = User.authenticate(username, password)
+    if registered_user is None:
+        return jsonify(success=False)
+    login_user(registered_user)
+    return jsonify(success=True)
 
 @app.route('/admin/api/users')
 @login_required
@@ -123,26 +126,12 @@ def admin_urls_detail(short):
         return redirect(url_for('admin_urls_list'))
     return render_template('admin_urls_detail.html', url=url, hits=url.hits())
 
-
-
-
 # * Users
 
 @app.route("/admin/users")
 @login_required
 def admin_users_list():
     return render_template('admin_users_list.html')
-
-@app.route("/admin/users/add")
-@login_required
-def admin_users_add():
-    return "not yet"
-
-@app.route("/admin/users/<username>")
-@login_required
-def admin_users_edit(username):
-    user = User(username)
-    return "edit %s" % (user.username)
 
 
 #@app.route("/<short>/<short1>/<short2>/")
