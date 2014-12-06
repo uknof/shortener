@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from shortobjs import User, Url
+from shortlib import User, Url
 import json
 
 urls = Url.get_all()

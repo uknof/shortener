@@ -6,7 +6,7 @@ srcdir = '..'
 sys.path.insert(0, os.path.abspath(os.path.join(testdir, srcdir)))
 
 import unittest
-from shortobjs import Url
+from shortlib import Url
 from random import randint
 
 class UrlTest(unittest.TestCase):

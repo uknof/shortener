@@ -2,12 +2,11 @@
 
 from flask import Flask, render_template, request, redirect, flash, url_for, g, session, jsonify
 from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
-from forms import AddForm, LoginForm
 import random
 import string
 import os
 import json
-from shortobjs import User, Url, Totals
+from shortlib import User, Url, Totals
 
 #from user import User
 
