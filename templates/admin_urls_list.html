@@ -18,5 +18,100 @@
 </table>
 
 <p>&nbsp;</p>
-<p><a href="{{ url_for('admin_urls_add') }}"  class="btn btn-primary active" role="button">Shorten URL</a></p>
+
+<div class="row">
+    <form class="form-horizontal" id="newUrlForm">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Destination</label>
+            <div class="col-sm-6">
+                <input type="text" class="form-control" name="destination"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Short</label>
+            <div class="col-sm-2">
+                <input type="text" class="form-control" name="short"  placeholder="ifqnu"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Custom</label>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" name="custom" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-lg-9 col-lg-offset-3">
+                <button type="submit" class="btn btn-primary" name="shorten" value="Shorten">Shorten <span class="glyphicon glyphicon-flash"></span></button>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+$(document).ready(function() {
+    $("input:text:visible:first").focus();
+    $('#newUrlForm').bootstrapValidator({
+//        live: 'disabled',
+        message: 'This value is not valid',
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            custom: {
+                group: '.col-lg-4',
+                validators: {
+                    notEmpty: {
+                        message: 'The first name is required and cannot be empty'
+                    },
+                    stringLength: {
+                        min: 3,
+                        max: 64,
+                        message: 'Must be between 3 and 64 characters'
+                    }
+                }
+            }
+        }
+    })
+    .on('success.form.bv', function(e) {
+            // Prevent form submission
+            e.preventDefault();
+
+            // Get the form instance
+            var $form = $(e.target);
+
+            // Get the BootstrapValidator instance
+            var bv = $form.data('bootstrapValidator');
+            
+            var name = $('#defaultForm').find('input[name="name"]').val();
+            var account = $('#defaultForm').find('input[name="account"]').val();
+            var email = $('#defaultForm').find('input[name="email"]').val();
+            
+            registration = { "name": name, "email": email, "account": account };
+            $.ajax({
+                type: "POST",
+                url: "/register/ajax/process",
+                data: JSON.stringify({ registration: registration }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data){registrationState(data["success"]);},
+                failure: function(errMsg) {
+                    alert(errMsg);
+                }
+            });
+    });
+});
+
+function registrationState(result) {
+    if (result) {
+        $("#regForm").hide();
+        $("#regSuccess").show();
+    } else {
+        bootbox.alert("Registration failed, please email noc@esgob.com", function() {
+            
+        });
+    }
+
+}
+</script>
 {% endblock %}
