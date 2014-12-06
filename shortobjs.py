@@ -67,6 +67,8 @@ class User():
     @staticmethod
     def authenticate(username, password):
         username = username.lower().strip()
+        if len(username) == 0 or len(password) == 0:
+            return None
         userdb = query_db("select * from users where username = ?", [username])
         if len(userdb) == 1:       
             # user exists, check the hash
