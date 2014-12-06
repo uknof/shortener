@@ -1,7 +1,6 @@
-Flask-WTF
 Flask-Login
 ipaddr
 sqlite3
 passlib
-nose
+unittest
 rfc3987

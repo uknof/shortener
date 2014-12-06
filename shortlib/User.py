@@ -1,32 +1,14 @@
 #!/usr/bin/env python
 
-import sqlite3
 import random
 from passlib.hash import pbkdf2_sha256
-
-DATABASE = "urls.db"
-
-
-def get_db():
-    db = sqlite3.connect(DATABASE)
-
-    def make_dicts(cursor, row):
-        return dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
-    db.row_factory = make_dicts
-    return db
-
-def query_db(query, args=(), one=False):
-    cur = get_db().execute(query, args)
-    rv = cur.fetchall()
-    cur.close()
-    return (rv[0] if rv else None) if one else rv
-
+from Database import Database as db
 
 class User():
 
     def __init__(self, username):
         username = username.lower().strip()
-        userdb = query_db("select * from users where username = ?", [username])
+        userdb = db.query_db("select * from users where username = ?", [username])
         if len(userdb) == 0:
 	       raise Exception("No user '%s' found" % (username))
         self.username = userdb[0]["username"]
@@ -45,9 +27,9 @@ class User():
         return self.username
 
     def delete(self):
-        db = get_db()
-        db.execute('delete from users where username = ?', [self.username])
-        db.commit()
+        d = db.get_db()
+        d.execute('delete from users where username = ?', [self.username])
+        d.commit()
         return None
 
     @staticmethod
@@ -57,7 +39,7 @@ class User():
     @staticmethod
     def get_all():
         users = []
-        for userrow in query_db("select username from users"):
+        for userrow in db.query_db("select username from users"):
             username = userrow["username"]
             user = User(username)
             users.append(user)
@@ -66,7 +48,7 @@ class User():
     @staticmethod
     def exists(username):
         username = username.lower().strip()
-        userdb = query_db("select * from users where username = ?", [username])
+        userdb = db.query_db("select * from users where username = ?", [username])
         if len(userdb) == 0:
 	    return False
         else:
@@ -77,7 +59,7 @@ class User():
         username = username.lower().strip()
         if len(username) == 0 or len(password) == 0:
             return None
-        userdb = query_db("select * from users where username = ?", [username])
+        userdb = db.query_db("select * from users where username = ?", [username])
         if len(userdb) == 1:       
             # user exists, check the hash
             hash = userdb[0]["password"]
@@ -91,9 +73,9 @@ class User():
         if User.exists(username) is True:
             raise Exception("user '%s' already exists" % (username))
         hash = pbkdf2_sha256.encrypt(password, rounds=200000, salt_size=16)
-        db = get_db()
-        db.execute('insert into users (username,password) values (?,?)', [username, hash])
-        db.commit()        
+        d = db.get_db()
+        d.execute('insert into users (username,password) values (?,?)', [username, hash])
+        d.commit()        
         if User.exists(username) is False:
 	       raise Exception("created user '%s' does not exist" % (username))
         u = User(username)
