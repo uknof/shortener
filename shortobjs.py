@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import sqlite3
+import rfc3987
+import random
 from passlib.hash import pbkdf2_sha256
 
 DATABASE = "urls.db"
@@ -41,6 +43,12 @@ class User():
 
     def get_id(self):
         return self.username
+
+    def delete(self):
+        db = get_db()
+        db.execute('delete from users where username = ?', [self.username])
+        db.commit()
+        return None
 
     @staticmethod
     def get(username):
@@ -93,15 +101,6 @@ class User():
            raise Exception("created user '%s' is None" % (username))
         return u
 
-    @staticmethod
-    def delete(username):
-        username = username.lower().strip()
-        if User.exists(username) is False:
-            raise Exception("user '%s' does not exist" % (username))
-        db = get_db()
-        db.execute('delete from users where username = ?', [username])
-        db.commit()
-        return None
 
 
 class Totals():
@@ -110,7 +109,23 @@ class Totals():
         return
 
     def get_all(self):
-        return {}
+        total4 = 0
+        total6 = 0
+        totalhits = query_db('select sum(hits4) as total4, sum(hits6) as total6 from hits')
+        if len(totalhits) > 0:
+            total4 = totalhits[0]["total4"]
+            total6 = totalhits[0]["total6"]
+            if total4 is None:
+                total4 = 0
+            if total6 is None:
+                total6 = 0
+        items = {}
+        items["Hits"] = total4 + total6
+        items["Hit IPv4"] = total4
+        items["Hit IPv6"] = total6
+        items["URLs"] = Url.total()
+        items["Users"] = query_db('select count(*) as users from users')[0]["users"]
+        return items
 
 
 class Url():
@@ -130,6 +145,12 @@ class Url():
         h = []
         h = query_db("select * from hits where short=? order by hitdate desc", [self.short])
         return []
+
+    def delete(self):
+        db = get_db()
+        db.execute("delete from urls where short = ?", [short])
+        db.commit()
+        return
 
     @staticmethod
     def total():
@@ -160,3 +181,19 @@ class Url():
             short = ''.join(random.choice(['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z']) for i in range(5))
             matches = query_db("select * from urls where short=?", [short])
         return short
+
+    @staticmethod
+    def url_valid(url):
+        if rfc3987.match(url, rule='URI'):
+            return True
+        return False
+
+    @staticmethod
+    def create(short, dest, createdby):
+        db = get_db()
+        db.execute("insert into urls (short,dest,createdon,createdby) values (?,?,date('now'),?)", [short, dest,createdby])
+        db.commit()
+        return
+
+
+

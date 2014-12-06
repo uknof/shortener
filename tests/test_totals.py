@@ -6,10 +6,9 @@ srcdir = '..'
 sys.path.insert(0, os.path.abspath(os.path.join(testdir, srcdir)))
 
 import unittest
-from shortobjs import Url
-from random import randint
+from shortobjs import Totals
 
-class UrlTest(unittest.TestCase):
+class TotalsTest(unittest.TestCase):
 
     def setUp(self):
         return
@@ -17,12 +16,10 @@ class UrlTest(unittest.TestCase):
     def tearDown(self):
         return
 
-    def test_urlvalidYes(self):
-        self.assertTrue(Url.url_valid("http://bbc.co.uk/"))
-
-    def test_urlvalidNo(self):
-        self.assertFalse(Url.url_valid("http//bb_/c.co.uk/"))
-
+    def test_getallAtLeastOne(self):
+        totals = Totals()
+        alltotals = totals.get_all()
+        self.assertGreater(len(alltotals),0)
 
 if __name__ == '__main__':
     unittest.main()

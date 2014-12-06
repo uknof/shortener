@@ -8,8 +8,6 @@ import random
 import string
 import ipaddr
 import os
-from passlib.hash import pbkdf2_sha256
-import rfc3987
 import json
 from shortobjs import User, Url, Totals
 
@@ -19,7 +17,8 @@ VERSION = "0.0.1"
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.secret_key = ''.join(random.choice(string.lowercase) for i in range(16))
+app.secret_key = 'abc'
+#app.secret_key = ''.join(random.choice(string.lowercase) for i in range(16))
 
 DATABASE = "urls.db"
 DATABASEREQ = 0.1
@@ -38,29 +37,6 @@ def load_user(username):
 def before_request():
     g.user = current_user
     print g.user
-
-
-def db_totals():
-    total4 = 0
-    total6 = 0
-    totalhits = query_db('select sum(hits4) as total4, sum(hits6) as total6 from hits')
-    if len(totalhits) > 0:
-        total4 = totalhits[0]["total4"]
-        total6 = totalhits[0]["total6"]
-        if total4 is None:
-            total4 = 0
-        if total6 is None:
-            total6 = 0
-
-    items = {}
-    items["Hits"] = total4 + total6
-    items["Hit IPv4"] = total4
-    items["Hit IPv6"] = total6
-
-    items["URLs"] = Url.total()
-    items["Users"] = query_db('select count(*) as users from users')[0]["users"]
-
-    return items
 
 @app.route('/admin/about')
 def about():
@@ -101,23 +77,17 @@ def admin_api():
     urls = Url.get_all()
     return json.dumps([dict(url.__dict__) for url in urls])
 
-
-def url_dest_valid(dest):
-    if rfc3987.match(dest, rule='URI'):
-        return True
-    return False
-
+# URLS
 
 @app.route('/admin/urls/add', methods=['GET', 'POST'])
 @login_required
 def admin_urls_add():
     form = AddForm(request.form)
     if request.method == 'POST' and form.validate():
-        if url_dest_valid(form.dest.data) is True:
+        if Url.url_valid(form.dest.data) is True:
             short = Url.unique_short()
             createdby = g.user.username
-            get_db().execute("insert into urls (short,dest,createdon,createdby) values (?,?,date('now'),?)", [short, form.dest.data,createdby])
-            get_db().commit()
+            Url.create(short,form.dest.data,createdby)
             flash("URL %s generated" % (short))
             return redirect(url_for('admin_urls_list'))
         else:
@@ -162,6 +132,26 @@ def urlmatch(url):
     get_db().commit()
     # finally redirect
     return redirect(destination, code=302)
+
+# * Users
+
+@app.route("/admin/users")
+@login_required
+def admin_users_list():
+    users = User.get_all()
+    return render_template('admin_users_list.html', users=users)
+
+
+@app.route("/admin/users/add")
+@login_required
+def admin_users_add():
+    return "not yet"
+
+@app.route("/admin/users/<username>")
+@login_required
+def admin_users_edit(username):
+    user = User(username)
+    return "edit %s" % (user.username)
 
 
 #@app.route("/<short>/<short1>/<short2>/")

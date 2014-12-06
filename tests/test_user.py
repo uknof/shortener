@@ -22,7 +22,7 @@ class UserTest(unittest.TestCase):
         users = User.get_all()
         for u in users:
             if u.username.startswith(USERPREFIX):
-                User.delete(u.username)
+                u.delete()
 
     def test_adminUserExists(self):
         exists = User.exists("admin")
@@ -62,7 +62,7 @@ class UserTest(unittest.TestCase):
         newuser = User.create(testusername,"xxx")
         self.assertIsNotNone(newuser)
         self.assertTrue(User.exists(testusername))
-        User.delete(testusername)
+        newuser.delete()
         self.assertFalse(User.exists(testusername))
 
     def createTestUser(self):
