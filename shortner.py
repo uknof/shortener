@@ -69,12 +69,9 @@ def admin_index():
 
 # API
 
-@app.route('/admin/api')
-@login_required
-def admin_api():
-    obj = { "testa":123, "testb":456 }
-    urls = Url.get_all()
-    return json.dumps([dict(url.__dict__) for url in urls])
+@app.route('/admin/api/login')
+def admin_api_login():
+    return json.dumps({"success": False})
 
 @app.route('/admin/api/users')
 @login_required
