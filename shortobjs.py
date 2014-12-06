@@ -3,6 +3,7 @@
 import sqlite3
 import rfc3987
 import random
+import ipaddr
 from passlib.hash import pbkdf2_sha256
 
 DATABASE = "urls.db"
@@ -128,6 +129,12 @@ class Totals():
         items["Users"] = query_db('select count(*) as users from users')[0]["users"]
         return items
 
+    def get_all_rows(self):
+        rows = []
+        totals = self.get_all()
+        for key in totals:
+            rows.append({"item": key, "total":totals[key]})
+        return rows
 
 class Url():
 
@@ -140,7 +147,11 @@ class Url():
         self.createdon = row["createdon"]
         self.short = row["short"]
         self.hits4 = row["hits4"]
+        if self.hits4 is None:
+            self.hits4 = 0
         self.hits6 = row["hits6"]
+        if self.hits6 is None:
+            self.hits6 = 0
 
     def hits(self):
         h = []
@@ -149,8 +160,22 @@ class Url():
 
     def delete(self):
         db = get_db()
-        db.execute("delete from urls where short = ?", [short])
+        db.execute("delete from urls where short = ?", [self.short])
         db.commit()
+        return
+
+    def hits_record(self, sourceip):
+        db = get_db()
+        ip = ipaddr.IPAddress(sourceip)
+        hittoday = query_db("select * from hits where short=? and hitdate=date('now')", [self.short])
+        hitfield = "hits%s" % (ip.version)
+        # update hit counters
+        if len(hittoday) == 0:
+            db.execute("insert into hits (short,hitdate,%s) values (?,date('now'),1)" % (hitfield), [self.short])
+        else:
+            db.execute("update hits set %s=%s+1 where short=? and hitdate=date('now')" % (hitfield,hitfield), [self.short])
+        db.commit()
+
         return
 
     @staticmethod

@@ -3,10 +3,8 @@
 from flask import Flask, render_template, request, redirect, flash, url_for, g, session
 from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
 from forms import AddForm, LoginForm
-import sqlite3
 import random
 import string
-import ipaddr
 import os
 import json
 from shortobjs import User, Url, Totals
@@ -17,7 +15,7 @@ VERSION = "0.0.1"
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.secret_key = 'abc'
+app.secret_key = 'abcd'
 #app.secret_key = ''.join(random.choice(string.lowercase) for i in range(16))
 
 DATABASE = "urls.db"
@@ -67,8 +65,7 @@ def logout():
 @app.route('/admin')
 @login_required
 def admin_index():
-    totals = Totals()
-    return render_template('admin_index.html', totals=totals.get_all())
+    return render_template('admin_index.html')
 
 # API
 
@@ -91,6 +88,11 @@ def admin_api_urls():
     urls = Url.get_all()
     return json.dumps([dict(url.__dict__) for url in urls])
 
+@app.route('/admin/api/totals')
+@login_required
+def admin_api_totals():
+    t = Totals()
+    return json.dumps(t.get_all_rows())
 
 # URLS
 
@@ -125,27 +127,7 @@ def admin_urls_detail(short):
     return render_template('admin_urls_detail.html', url=url, hits=url.hits())
 
 
-def urlmatch(url):
-    shorturl = url.lower()
-    match = Url.match(shorturl)
-    if match is None:
-        return "No match found"
-    destination = match.dest
-    short = match.short
 
-    # work out src ip version
-    srcip = request.remote_addr
-    ip = ipaddr.IPAddress(srcip)
-    hittoday = query_db("select * from hits where short=? and hitdate=date('now')", [short])
-    hitfield = "hits%s" % (ip.version)
-    # update hit counters
-    if len(hittoday) == 0:
-        get_db().execute("insert into hits (short,hitdate,%s) values (?,date('now'),1)" % (hitfield), [short])
-    else:
-        get_db().execute("update hits set %s=%s+1 where short=? and hitdate=date('now')" % (hitfield,hitfield), [short])
-    get_db().commit()
-    # finally redirect
-    return redirect(destination, code=302)
 
 # * Users
 
@@ -177,7 +159,15 @@ def urlcheck(short, short1=None, short2=None):
             short = short + "/" + short1
         if short2 is not None:
             short = short + "/" + short2
-        return urlmatch(short)
+
+        match = Url.match(short.lower())
+        if match is None:
+            return "No match found"
+
+        match.hits_record(request.remote_addr)
+
+        # finally redirect
+        return redirect(match.dest, code=302)
 
 
 @app.route("/")

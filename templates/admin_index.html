@@ -2,20 +2,15 @@
 {% block header %}UKNOF URL Shortner{% endblock %}
 {% block content %}
 
-
 <div class="panel panel-primary">
 <div class="panel-heading">Database totals</div>
-<table class="table table-striped">
-<tr>
-	<th>Item</th>
-	<th>Amount</th>
-</tr>
-{% for key,value in totals.iteritems() | sort %}
-<tr>
-	<td>{{ key }}</td>
-	<td>{{ value }}</td>
-</tr>
-{% endfor %}
+<table class="table table-striped" data-toggle="table" data-sort-name="item" data-url="/admin/api/totals">
+    <thead>
+        <tr>
+            <th data-field="item" >Item</th>
+            <th data-field="total" >Amount</th>
+        </tr>
+    </thead>
 </table>
 </div>
 
