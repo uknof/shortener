@@ -13,15 +13,16 @@ class Database():
 
     @staticmethod
     def exists():
-        return os.path.isfile(DATABASE)
+        return os.path.isfile(Database.path())
 
     @staticmethod
     def path():
-        return ""
+        dbpath = os.getenv('DATABASE_LOCAL',DATABASE)
+        return dbpath
 
     @staticmethod
     def get_db():
-        db = sqlite3.connect(DATABASE)
+        db = sqlite3.connect(Database.path())
 
         def make_dicts(cursor, row):
             return dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
@@ -42,6 +43,6 @@ class Database():
             schema = f.read()
         d.cursor().executescript(schema)
         d.commit()
-        print "Empty database %s created" % (DATABASE)
+        print "Empty database %s created" % (Database.path())
 
             
