@@ -7,12 +7,11 @@ import os
 import json
 from shortlib import Database, User, Url, Totals
 
-VERSION = "0.0.1"
+VERSION = "0.0.2"
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.secret_key = 'abcd'
-#app.secret_key = ''.join(random.choice(string.lowercase) for i in range(16))
+app.secret_key = ''.join(random.choice(string.lowercase) for i in range(16))
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -167,7 +166,6 @@ def urlcheck(short, short1=None, short2=None):
 @app.route("/")
 def index():
     return "URL Shortner v%s" % (VERSION)
-
 
 if __name__ == '__main__':
 
