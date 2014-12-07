@@ -5,6 +5,7 @@ from flask.ext.login import LoginManager, login_required, login_user, logout_use
 import random
 import os
 import json
+import string
 from shortlib import Database, User, Url, Totals
 
 VERSION = "0.0.2"
