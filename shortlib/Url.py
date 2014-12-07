@@ -6,6 +6,7 @@ import random
 import ipaddr
 from Database import Database as db
 
+
 class Url():
 
     def __init__(self, short):
@@ -45,7 +46,7 @@ class Url():
         if len(hittoday) == 0:
             d.execute("insert into hits (short,hitdate,%s) values (?,date('now'),1)" % (hitfield), [self.short])
         else:
-            d.execute("update hits set %s=%s+1 where short=? and hitdate=date('now')" % (hitfield,hitfield), [self.short])
+            d.execute("update hits set %s=%s+1 where short=? and hitdate=date('now')" % (hitfield, hitfield), [self.short])
         d.commit()
 
         return
@@ -92,10 +93,7 @@ class Url():
     @staticmethod
     def create(short, dest, createdby, custom='', notes=''):
         d = db.get_db()
-        d.execute("insert into urls (short,dest,createdon,createdby,custom,notes) values (?,?,date('now'),?,?,?)", [short, dest,createdby,custom,notes])
+        d.execute("insert into urls (short,dest,createdon,createdby,custom,notes) values (?,?,date('now'),?,?,?)", [short, dest, createdby, custom, notes])
         d.commit()
         newurl = Url(short)
         return newurl
-
-
-

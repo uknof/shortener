@@ -9,6 +9,7 @@ DATABASE = "urls.db"
 SCHEMAFILE = "schema.sql"
 DATABASEREQ = 0.1
 
+
 class Database():
 
     @staticmethod
@@ -17,7 +18,7 @@ class Database():
 
     @staticmethod
     def path():
-        dbpath = os.getenv('DATABASE_LOCAL',DATABASE)
+        dbpath = os.getenv('DATABASE_LOCAL', DATABASE)
         return dbpath
 
     @staticmethod
@@ -44,5 +45,3 @@ class Database():
         d.cursor().executescript(schema)
         d.commit()
         print "Empty database %s created" % (Database.path())
-
-            

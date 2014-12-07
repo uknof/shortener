@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import sys, os
+import os
+import sys
 testdir = os.path.dirname(__file__)
 srcdir = '..'
 sys.path.insert(0, os.path.abspath(os.path.join(testdir, srcdir)))
@@ -8,6 +9,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(testdir, srcdir)))
 import unittest
 from shortlib import Url
 from random import randint
+
 
 class UrlTest(unittest.TestCase):
 

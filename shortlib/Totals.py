@@ -3,6 +3,7 @@
 from Database import Database as db
 from Url import Url
 
+
 class Totals():
 
     def __init__(self):
@@ -31,5 +32,5 @@ class Totals():
         rows = []
         totals = self.get_all()
         for key in totals:
-            rows.append({"item": key, "total":totals[key]})
+            rows.append({"item": key, "total": totals[key]})
         return rows

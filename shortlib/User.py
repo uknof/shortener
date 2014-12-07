@@ -5,13 +5,14 @@ from passlib.hash import pbkdf2_sha256
 from Database import Database as db
 from Url import Url
 
+
 class User():
 
     def __init__(self, username):
         username = username.lower().strip()
         userdb = db.query_db("select * from users where username = ?", [username])
         if len(userdb) == 0:
-	       raise Exception("No user '%s' found" % (username))
+            raise Exception("No user '%s' found" % (username))
         self.username = userdb[0]["username"]
         self.logins = userdb[0]["logins"]
         self.last_login = userdb[0]["last_login"]
@@ -53,7 +54,7 @@ class User():
         username = username.lower().strip()
         userdb = db.query_db("select * from users where username = ?", [username])
         if len(userdb) == 0:
-	    return False
+            return False
         else:
             return True
 
@@ -63,13 +64,13 @@ class User():
         if len(username) == 0 or len(password) == 0:
             return None
         userdb = db.query_db("select * from users where username = ?", [username])
-        if len(userdb) == 1:       
+        if len(userdb) == 1:
             # user exists, check the hash
             hash = userdb[0]["password"]
             if pbkdf2_sha256.verify(password, hash):
                 d = db.get_db()
                 d.execute("update users set logins = logins + 1, last_login = date('now') where username = ?", [username])
-                d.commit() 
+                d.commit()
                 return User(username)
         return None
 
@@ -81,10 +82,10 @@ class User():
         hash = pbkdf2_sha256.encrypt(password, rounds=200000, salt_size=16)
         d = db.get_db()
         d.execute('insert into users (username,password) values (?,?)', [username, hash])
-        d.commit()        
+        d.commit()
         if User.exists(username) is False:
-	       raise Exception("created user '%s' does not exist" % (username))
+            raise Exception("created user '%s' does not exist" % (username))
         u = User(username)
         if u is None:
-           raise Exception("created user '%s' is None" % (username))
+            raise Exception("created user '%s' is None" % (username))
         return u
