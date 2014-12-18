@@ -7,7 +7,8 @@ This app provides a simple URL shortening service, other similar projects alread
 It is built using Python:
 
 * Python
-* Flask
+* Flask 0.10.1
+* Flask-Login 0.2.11
 * sqlite3
 * passlib
 * ipaddr
