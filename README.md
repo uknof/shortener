@@ -4,14 +4,23 @@
 
 This app provides a simple URL shortening service, other similar projects already exist, but did not meet all of our requirements.
 
-It is built using:
+It is built using Python:
 
 * Python
 * Flask
-* Flask-WTF, Flask-Login
 * sqlite3
 * passlib
+* ipaddr
+* rfc3987
+* unittest
+
+HTML / JS / CSS:
+
 * Bootstrap 3
+* Bootbox.js 4.3.0
+* Bootstrap-table 1.4.0
+* BootstrapValidator 0.5.3
+* jQuery 1.10.2
 
 ## Production deployment
 
