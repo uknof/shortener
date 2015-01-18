@@ -8,7 +8,7 @@ import json
 import string
 from shortlib import Database, User, Url, Totals
 
-VERSION = "0.0.3"
+VERSION = "0.0.4"
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -159,7 +159,7 @@ def urlcheck(short, short1=None, short2=None):
 
 @app.route("/")
 def index():
-    return "URL Shortner v%s" % (VERSION)
+    return redirect("http://www.uknof.org.uk", code=302)
 
 if __name__ == '__main__':
 
