@@ -1,7 +1,6 @@
 Flask
 Flask-Login
 ipaddr
-sqlite3
 passlib
 unittest
 rfc3987
