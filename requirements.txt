@@ -1,4 +1,4 @@
-Flaskx
+Flask
 Flask-Login
 ipaddr
 sqlite3
