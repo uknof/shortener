@@ -2,5 +2,4 @@ Flask
 Flask-Login
 ipaddr
 passlib
-unittest
 rfc3987
