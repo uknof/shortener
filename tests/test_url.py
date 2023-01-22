@@ -2,29 +2,29 @@
 
 import os
 import sys
+
 testdir = os.path.dirname(__file__)
-srcdir = '..'
+srcdir = ".."
 sys.path.insert(0, os.path.abspath(os.path.join(testdir, srcdir)))
 
 import unittest
+
 from shortlib import Url
-from random import randint
 
 
 class UrlTest(unittest.TestCase):
-
-    def setUp(self):
+    def setUp(self) -> None:
         return
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         return
 
-    def test_urlvalidYes(self):
+    def test_urlvalidYes(self) -> None:
         self.assertTrue(Url.url_valid("http://bbc.co.uk/"))
 
-    def test_urlvalidNo(self):
+    def test_urlvalidNo(self) -> None:
         self.assertFalse(Url.url_valid("http//bb_/c.co.uk/"))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

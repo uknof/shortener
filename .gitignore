@@ -1,2 +1,7 @@
-urls.db
+.mypy_cache/
 *.pyc
+__pycache__/
+.tox/
+urls.db
+.venv/
+venv/

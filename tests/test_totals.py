@@ -2,26 +2,29 @@
 
 import os
 import sys
-testdir = os.path.dirname(__file__)
-srcdir = '..'
+from typing import Dict
+
+testdir: str = os.path.dirname(__file__)
+srcdir: str = ".."
 sys.path.insert(0, os.path.abspath(os.path.join(testdir, srcdir)))
 
 import unittest
+
 from shortlib import Totals
 
 
 class TotalsTest(unittest.TestCase):
-
-    def setUp(self):
+    def setUp(self) -> None:
         return
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         return
 
-    def test_getallAtLeastOne(self):
-        totals = Totals()
-        alltotals = totals.get_all()
+    def test_getallAtLeastOne(self) -> None:
+        totals: Totals = Totals()
+        alltotals: Dict = totals.get_all()
         self.assertGreater(len(alltotals), 0)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

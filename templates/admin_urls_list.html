@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<table id="urltable" class="table table-striped table-condensed" data-toggle="table" data-search="true" data-sort-name="dest" data-show-refresh="true" data-url="/admin/api/urls">
+<table id="urltable" class="table table-striped table-condensed" data-toggle="table" data-search="true" data-sort-name="dest" data-show-refresh="true" data-pagination="true" data-url="/admin/api/urls">
     <thead>
         <tr>
             <th data-field="short" data-sortable="true">Short</th>
@@ -14,6 +14,7 @@
             <th data-field="hits6" data-sortable="true">Hits v6</th>
             <th data-field="notes" data-sortable="true">Notes</th>
             <th data-field="createdby" data-sortable="true">Created by</th>
+            <th data-field="delete" data-formatter="deleteFormatter" data-events="deleteEvents">Options</th>
         </tr>
     </thead>
 </table>
@@ -132,6 +133,18 @@ $(document).ready(function() {
 
     });
 });
+
+function deleteFormatter(value, row, index) {
+  return [
+
+    '<a class="remove" href="javascript:void(0)" title="Remove" style="color: #A00">',
+    '<i class="glyphicon glyphicon-trash"></i>',
+    '</a>'
+  ].join('')
+}
+
+
+
 function newUrlState(data) {
     success = data["success"]
     if (success) {
@@ -148,6 +161,43 @@ function newUrlState(data) {
         });
     }
 
+}
+
+function newDeleteState(data) {
+    success = data["success"]
+    if (success) {
+        bootbox.alert("url deleted", function() {
+            $('#urltable').bootstrapTable('refresh', {url: '/admin/api/urls'});
+            $('#newUrlForm').trigger("reset");
+            $('#newUrlForm').data('bootstrapValidator').resetForm();
+        });
+    } else {
+        bootbox.alert("Login failed", function() {
+            $('#newUrlForm').trigger("reset");
+            $('#newUrlForm').data('bootstrapValidator').resetForm();
+        });
+    }
+
+}
+
+window.deleteEvents = {
+    'click .remove': function (e, value, row, index) {
+        //myRow = JSON.parse(row)
+        //alert(myRow.short)
+        //alert($'#urltable'.rows(index))
+ 
+        $.ajax({
+            type: "POST",
+            url: "/admin/api/urls/delete",
+            data: JSON.stringify({ short: row.short }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){newDeleteState(data);},
+            failure: function(errMsg) {
+                alert(errMsg);
+            }
+        });
+    }
 }
 </script>
 {% endblock %}
