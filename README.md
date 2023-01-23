@@ -4,11 +4,11 @@
 
 This app provides a simple URL shortening service, other similar projects already exist, but did not meet all of our requirements.
 
-It is built using Python:
+It is built using Python (see [requirements.txt](requirements.txt)):
 
-* Python
-* Flask 0.10.1
-* Flask-Login 0.2.11
+* Python3
+* Flask
+* Flask-Login
 * sqlite3
 * passlib
 * ipaddr
@@ -17,47 +17,50 @@ It is built using Python:
 
 HTML / JS / CSS:
 
-* Bootstrap 3
-* Bootbox.js 4.3.0
-* Bootstrap-table 1.4.0
-* BootstrapValidator 0.5.3
-* jQuery 1.10.2
+* Bootstrap
+* Bootbox.js
+* Bootstrap-table
+* BootstrapValidator
+* jQuery
 
-## Production deployment
 
-TODO
+## URLs
+
+* `/admin/login` - Admin login page
+* `/admin/` - Admin panel
+* `/admin/about` - License, contributors, change log
+* `/admin/urls` - List of existing short URLs, add/edit/delete URLs here
+* `/admin/users` - List of users, add/edit/delete users here
+* `/admin/logout`
+
+## Settings
+
+Global settings are stored in [.env](.env).
+
+## Running
+
+Start up the docker container:
+
+```shell
+docker-compose up -d
+```
+
+Now point your web browser to http://127.0.0.1:5000/admin
 
 ## Development
 
-### Setting up your environment
+The list of contributors and the change log is in the [about page](templates/about.html) (viewable when running the app).
 
-Clone the repo, then install the required Python modules:
+### Testing
 
-```
-$ git clone git@github.com:uknof/shortner.git
-$ cd shortner
-$ sudo pip install -r requirements.txt
-```
+Run tox inside the container
 
-Create an empty database:
-
-```
-$ python
-Python 2.7.5 (default, Mar  9 2014, 22:15:05)
->>> from shortner import init_db
->>> init_db()
-Empty database urls.db created
-New user 'admin' created with password 'adldxnim'
->>> exit()
+```shell
+docker-compose exec shortner tox
 ```
 
-Running the local web server:
+Fix linting issues with:
 
+```shell
+docker-compose exec shortner tox -e fixlint
 ```
-$ ./shortner.py
- * Running on http://127.0.0.1:5000/
- * Restarting with reloader
-
-```
-
-Point your web browser at http://127.0.0.1:5000

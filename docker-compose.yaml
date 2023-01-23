@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  shortner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BUILD_DIR=$BUILD_DIR
+        - DATABASE=$DATABASE
+        - LISTEN_PORT=$LISTEN_PORT
+        - SCHEMAFILE=$SCHEMAFILE
+    # .env is automatically parsed at build time, but not at run-time.
+    # Explicitly specify it here to make the same VARs available at run-time.
+    env_file:
+      - .env
+    ports:
+      - "$LISTEN_PORT:$LISTEN_PORT"
+    # setting amd64 for macOS M1 devices to use the emulation because of libpq
+    platform: linux/amd64
+    restart: unless-stopped
+    volumes:
+      - ./:/$BUILD_DIR/:z
