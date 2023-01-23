@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 
 import typing
+from shortlib import Database, User
 from unittest import TestLoader, TestSuite, TextTestRunner
-
 from tests import test_totals, test_url, test_user
+
+if not Database.exists():
+    Database.setup()
+    User.setup()
 
 testLoader: TestLoader = TestLoader()
 testSuite: TestSuite = TestSuite()
