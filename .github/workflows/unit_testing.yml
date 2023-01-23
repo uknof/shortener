@@ -25,4 +25,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run tox
-        run: tox
+        run: |
+          export $(cat .env | grep -v ^# | xargs) >/dev/null
+          tox
